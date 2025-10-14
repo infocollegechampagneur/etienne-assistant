@@ -10,11 +10,15 @@
     {
       "src": "/api/(.*)",
       "dest": "api/main.py"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "public/index.html"
     }
   ],
-  "env": {
-    "MONGO_URL": "@mongo_url",
-    "HUGGINGFACE_TOKEN": "@huggingface_token",
-    "DB_NAME": "etienne_free"
+  "functions": {
+    "api/main.py": {
+      "maxDuration": 30
+    }
   }
 }
