@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Étienne - Assistant IA Éducatif Québécois</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; background: #f8fafc; }
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        .header { background: linear-gradient(135deg, #f97316, #2563eb); color: white; padding: 30px; border-radius: 12px; text-align: center; margin-bottom: 30px; }
+        .chat-container { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .message { margin: 15px 0; padding: 15px; border-radius: 8px; }
+        .user-message { background: #f1f5f9; text-align: right; }
+        .ai-message { background: #fef3cd; }
+        .input-container { display: flex; gap: 10px; margin-top: 20px; }
+        input { flex: 1; padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; }
+        button { padding: 12px 20px; background: #f97316; color: white; border: none; border-radius: 8px; cursor: pointer; }
+        button:hover { background: #ea580c; }
+        .sources { margin-top: 10px; font-size: 0.9em; color: #6b7280; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab { padding: 10px 15px; background: #f1f5f9; border-radius: 6px; cursor: pointer; }
+        .tab.active { background: #f97316; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 Étienne</h1>
+            <p>Assistant IA pour les étudiants québécois - Collège Champagneur</p>
+        </div>
+
+        <div class="chat-container">
+            <div class="tabs">
+                <div class="tab active" onclick="setActiveTab('je_veux')">Je veux</div>
+                <div class="tab" onclick="setActiveTab('je_recherche')">Je recherche</div>
+                <div class="tab" onclick="setActiveTab('sources_fiables')">Sources fiables</div>
+                <div class="tab" onclick="setActiveTab('verification')">Vérification de texte</div>
+            </div>
+
+            <div id="messages"></div>
+
+            <div class="input-container">
+                <input type="text" id="messageInput" placeholder="Posez votre question à Étienne..." onkeypress="handleKeyPress(event)">
+                <button onclick="sendMessage()">Envoyer</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let activeTab = 'je_veux';
+        const API_URL = window.location.origin;
+
+        function setActiveTab(tab) {
+            activeTab = tab;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const placeholders = {
+                'je_veux': 'Je veux comprendre...',
+                'je_recherche': 'Je recherche des informations sur...',
+                'sources_fiables': 'Quelles sont les sources fiables pour...',
+                'verification': 'Collez votre texte à analyser...'
+            };
+            document.getElementById('messageInput').placeholder = placeholders[tab];
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            if (!message) return;
+
+            // Afficher message utilisateur
+            addMessage(message, 'user');
+            input.value = '';
+
+            try {
+                if (activeTab === 'verification') {
+                    // Analyse de texte
+                    const response = await fetch(`${API_URL}/api/analyze-text`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ text: message, analysis_type: 'complete' })
+                    });
+                    const data = await response.json();
+                    
+                    let analysisText = `**Analyse IA:** ${data.ai_detection.ai_probability * 100}% probabilité IA (${data.ai_detection.confidence})\n`;
+                    analysisText += `**Plagiat:** ${data.plagiarism_check.plagiarism_risk * 100}% risque (${data.plagiarism_check.risk_level})\n`;
+                    analysisText += `**Langue détectée:** ${data.detected_language === 'en' ? 'Anglais' : 'Français'}`;
+                    
+                    addMessage(analysisText, 'ai');
+                } else {
+                    // Chat normal
+                    const response = await fetch(`${API_URL}/api/chat`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            message: message,
+                            message_type: activeTab,
+                            session_id: 'web-session'
+                        })
+                    });
+                    const data = await response.json();
+                    addMessage(data.response, 'ai', data.sources);
+                }
+            } catch (error) {
+                addMessage('Erreur de connexion. Vérifiez que le backend est déployé.', 'ai');
+            }
+        }
+
+        function addMessage(text, sender, sources = null) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender === 'user' ? 'user-message' : 'ai-message'}`;
+            
+            let content = `<strong>${sender === 'user' ? 'Vous' : 'Étienne'}:</strong> ${text.replace(/\n/g, '<br>')}`;
+            
+            if (sources && sources.length > 0) {
+                content += '<div class="sources"><strong>Sources:</strong><ul>';
+                sources.forEach(source => {
+                    content += `<li>${source}</li>`;
+                });
+                content += '</ul></div>';
+            }
+            
+            messageDiv.innerHTML = content;
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // Message de bienvenue
+        window.onload = () => {
+            addMessage('Bonjour ! Je suis Étienne, votre assistant IA éducatif. Posez-moi vos questions sur vos études !', 'ai');
+        };
+    </script>
+</body>
+</html>
