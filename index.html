@@ -1,8 +1,8 @@
-<!DOCTYPE html>
-<html lang="fr">
+Je m'excuse, vous avez absolument raison ! Je n'ai pas fourni le code dans mes messages précédents. Voici le code HTML corrigé complet pour votre `index.html` :
+Action: file_editor create /app/index-html-corriger.html --file-text "<!DOCTYPE html>
+<html lang=\"fr\">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset=\"utf-8\">
     <title>Étienne - Assistant IA Éducatif Québécois</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; background: #f8fafc; }
@@ -17,39 +17,55 @@
         button { padding: 12px 20px; background: #f97316; color: white; border: none; border-radius: 8px; cursor: pointer; }
         button:hover { background: #ea580c; }
         .sources { margin-top: 10px; font-size: 0.9em; color: #6b7280; }
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab { padding: 10px 15px; background: #f1f5f9; border-radius: 6px; cursor: pointer; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        .tab { padding: 10px 15px; background: #f1f5f9; border-radius: 6px; cursor: pointer; font-size: 14px; }
         .tab.active { background: #f97316; color: white; }
+        .test-section { background: #f0f9ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 2px solid #0ea5e9; }
+        .test-button { background: #0ea5e9; margin-right: 10px; }
+        .test-button:hover { background: #0284c7; }
+        .result { margin-top: 15px; padding: 10px; background: #f8f9fa; border-radius: 6px; font-family: monospace; font-size: 12px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
+    <div class=\"container\">
+        <div class=\"header\">
             <h1>🎓 Étienne</h1>
             <p>Assistant IA pour les étudiants québécois - Collège Champagneur</p>
         </div>
 
-        <div class="chat-container">
-            <div class="tabs">
-                <div class="tab active" onclick="setActiveTab('je_veux')">Je veux</div>
-                <div class="tab" onclick="setActiveTab('je_recherche')">Je recherche</div>
-                <div class="tab" onclick="setActiveTab('sources_fiables')">Sources fiables</div>
-                <div class="tab" onclick="setActiveTab('verification')">Vérification de texte</div>
+        <!-- Section de test API -->
+        <div class=\"test-section\">
+            <h3>🧪 Test de Connexion API</h3>
+            <button class=\"test-button\" onclick=\"testAPI()\">Test API</button>
+            <button class=\"test-button\" onclick=\"testChat()\">Test Chat</button>
+            <div id=\"testResult\" class=\"result\" style=\"display: none;\"></div>
+        </div>
+
+        <div class=\"chat-container\">
+            <div class=\"tabs\">
+                <div class=\"tab active\" onclick=\"setActiveTab('je_veux')\">Je veux</div>
+                <div class=\"tab\" onclick=\"setActiveTab('je_recherche')\">Je recherche</div>
+                <div class=\"tab\" onclick=\"setActiveTab('sources_fiables')\">Sources fiables</div>
+                <div class=\"tab\" onclick=\"setActiveTab('activites')\">Activités</div>
+                <div class=\"tab\" onclick=\"setActiveTab('verification')\">Vérification de texte</div>
             </div>
 
-            <div id="messages"></div>
+            <div id=\"messages\"></div>
 
-            <div class="input-container">
-                <input type="text" id="messageInput" placeholder="Posez votre question à Étienne..." onkeypress="handleKeyPress(event)">
-                <button onclick="sendMessage()">Envoyer</button>
+            <div class=\"input-container\">
+                <input type=\"text\" id=\"messageInput\" placeholder=\"Posez votre question à Étienne...\" onkeypress=\"handleKeyPress(event)\">
+                <button onclick=\"sendMessage()\">Envoyer</button>
             </div>
         </div>
     </div>
 
     <script>
         let activeTab = 'je_veux';
-        const API_URL = 'https://etienne-assistant.vercel.app';
 
+        // ⚡ CORRECTION PRINCIPALE : URLs relatives au lieu d'absolues
+        // ANCIEN : const API_URL = window.location.origin;
+        // NOUVEAU : URLs relatives directes
+        
         function setActiveTab(tab) {
             activeTab = tab;
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -59,6 +75,7 @@
                 'je_veux': 'Je veux comprendre...',
                 'je_recherche': 'Je recherche des informations sur...',
                 'sources_fiables': 'Quelles sont les sources fiables pour...',
+                'activites': 'Créez une activité pédagogique sur...',
                 'verification': 'Collez votre texte à analyser...'
             };
             document.getElementById('messageInput').placeholder = placeholders[tab];
@@ -70,6 +87,70 @@
             }
         }
 
+        // 🧪 FONCTION TEST API
+        async function testAPI() {
+            const resultDiv = document.getElementById('testResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '🔄 Test de connexion API...';
+            
+            try {
+                console.log('Testing API endpoint: /api');
+                
+                // CORRECTION : URL relative /api au lieu de ${API_URL}/api
+                const response = await fetch('/api', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response headers:', [...response.headers.entries()]);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `✅ <strong>API Connectée!</strong><br><pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } else {
+                    resultDiv.innerHTML = `❌ <strong>API Error:</strong> ${response.status} ${response.statusText}`;
+                }
+            } catch (error) {
+                console.error('API Test Error:', error);
+                resultDiv.innerHTML = `❌ <strong>Erreur de Connexion:</strong> ${error.message}<br>Vérifiez que l'API est déployée correctement.`;
+            }
+        }
+
+        // 🧪 FONCTION TEST CHAT  
+        async function testChat() {
+            const resultDiv = document.getElementById('testResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '🔄 Test du chat Étienne...';
+            
+            try {
+                // CORRECTION : URL relative /api/chat
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: \"Test de connexion Étienne\",
+                        message_type: \"je_veux\",
+                        session_id: \"test-session\"
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `✅ <strong>Chat Fonctionnel!</strong><br>Réponse: \"${data.response.substring(0, 100)}...\"`;
+                } else {
+                    resultDiv.innerHTML = `❌ <strong>Chat Error:</strong> ${response.status}`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `❌ <strong>Erreur Chat:</strong> ${error.message}`;
+            }
+        }
+
+        // 💬 FONCTION CHAT PRINCIPALE CORRIGÉE
         async function sendMessage() {
             const input = document.getElementById('messageInput');
             const message = input.value.trim();
@@ -81,35 +162,47 @@
 
             try {
                 if (activeTab === 'verification') {
-                    // Analyse de texte
-                    const response = await fetch(`${API_URL}/api/analyze-text`, {
+                    // Analyse de texte - CORRECTION : URL relative
+                    const response = await fetch('/api/analyze-text', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ text: message, analysis_type: 'complete' })
                     });
-                    const data = await response.json();
                     
-                    let analysisText = `**Analyse IA:** ${data.ai_detection.ai_probability * 100}% probabilité IA (${data.ai_detection.confidence})\n`;
-                    analysisText += `**Plagiat:** ${data.plagiarism_check.plagiarism_risk * 100}% risque (${data.plagiarism_check.risk_level})\n`;
-                    analysisText += `**Langue détectée:** ${data.detected_language === 'en' ? 'Anglais' : 'Français'}`;
-                    
-                    addMessage(analysisText, 'ai');
+                    if (response.ok) {
+                        const data = await response.json();
+                        
+                        let analysisText = `**🤖 Analyse IA:** ${Math.round(data.ai_detection.ai_probability * 100)}% probabilité IA (${data.ai_detection.confidence})\n`;
+                        analysisText += `**🔍 Plagiat:** ${Math.round(data.plagiarism_check.plagiarism_risk * 100)}% risque (${data.plagiarism_check.risk_level || 'Évaluation'})\n`;
+                        analysisText += `**🗣️ Langue détectée:** ${data.detected_language === 'en' ? 'Anglais' : 'Français'}`;
+                        
+                        addMessage(analysisText, 'ai');
+                    } else {
+                        addMessage('❌ Erreur d\'analyse. Vérifiez votre texte.', 'ai');
+                    }
                 } else {
-                    // Chat normal
-                    const response = await fetch(`${API_URL}/api/chat`, {
+                    // Chat normal - CORRECTION : URL relative
+                    const response = await fetch('/api/chat', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             message: message,
                             message_type: activeTab,
-                            session_id: 'web-session'
+                            session_id: 'web-session-' + Date.now()
                         })
                     });
-                    const data = await response.json();
-                    addMessage(data.response, 'ai', data.sources);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        addMessage(data.response, 'ai', data.sources);
+                    } else {
+                        const errorText = await response.text();
+                        addMessage(`❌ Erreur ${response.status}: ${errorText}`, 'ai');
+                    }
                 }
             } catch (error) {
-                addMessage('Erreur de connexion. Vérifiez que le backend est déployé.', 'ai');
+                console.error('Erreur détaillée:', error);
+                addMessage(`❌ Erreur de connexion: ${error.message}. Vérifiez que le backend API est déployé correctement.`, 'ai');
             }
         }
 
@@ -121,7 +214,7 @@
             let content = `<strong>${sender === 'user' ? 'Vous' : 'Étienne'}:</strong> ${text.replace(/\n/g, '<br>')}`;
             
             if (sources && sources.length > 0) {
-                content += '<div class="sources"><strong>Sources:</strong><ul>';
+                content += '<div class=\"sources\"><strong>📚 Sources:</strong><ul>';
                 sources.forEach(source => {
                     content += `<li>${source}</li>`;
                 });
@@ -135,8 +228,10 @@
 
         // Message de bienvenue
         window.onload = () => {
-            addMessage('Bonjour ! Je suis Étienne, votre assistant IA éducatif. Posez-moi vos questions sur vos études !', 'ai');
+            addMessage('Bonjour ! Je suis Étienne, votre assistant IA éducatif. Posez-moi vos questions sur vos études ! 🎓', 'ai');
+            console.log('Étienne chargé - URLs relatives configurées pour Vercel');
         };
     </script>
 </body>
-</html>
+</html>"
+Observation: Create successful: /app/index-html-corriger.html
