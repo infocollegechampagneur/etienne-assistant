@@ -1,18 +1,21 @@
-<!DOCTYPE html>
-<html lang="fr">
+"<!DOCTYPE html>
+<html lang=\"fr\">
 <head>
-    <meta charset="utf-8">
+    <meta charset=\"utf-8\">
     <title>Étienne - Assistant IA Éducatif Québécois</title>
+    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">
+    <meta name=\"description\" content=\"Étienne - Assistant IA pour les étudiants québécois fourni par le Collège Champagneur\">
     <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; 
-            margin: 0; 
-            background: #f8fafc; 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            padding: 20px;
         }
         .container { 
             max-width: 900px; 
-            margin: 0 auto; 
-            padding: 20px; 
+            margin: 0 auto;
         }
         .header { 
             background: linear-gradient(135deg, #f97316, #2563eb); 
@@ -21,13 +24,15 @@
             border-radius: 12px; 
             text-align: center; 
             margin-bottom: 30px; 
-            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
         }
+        .header h1 { font-size: 2.5rem; margin-bottom: 10px; }
+        .header p { opacity: 0.95; margin: 5px 0; }
         .chat-container { 
             background: white; 
             border-radius: 12px; 
             padding: 25px; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
             min-height: 500px;
         }
         .message { 
@@ -41,12 +46,12 @@
             to { opacity: 1; transform: translateY(0); }
         }
         .user-message { 
-            background: #f1f5f9; 
+            background: #e3f2fd; 
             text-align: right; 
             border-left: 4px solid #2563eb;
         }
         .ai-message { 
-            background: #fef3cd; 
+            background: #fff3e0; 
             border-left: 4px solid #f97316;
         }
         .input-container { 
@@ -67,7 +72,7 @@
             box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
         }
         button { 
-            padding: 15px 25px; 
+            padding: 15px 30px; 
             background: #f97316; 
             color: white; 
             border: none; 
@@ -75,10 +80,12 @@
             cursor: pointer; 
             font-weight: 600;
             transition: all 0.2s;
+            font-size: 16px;
         }
         button:hover { 
             background: #ea580c; 
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
         }
         button:disabled {
             background: #94a3b8;
@@ -87,22 +94,22 @@
         }
         .sources { 
             margin-top: 15px; 
-            padding: 12px; 
+            padding: 15px; 
             background: #f0f9ff;
-            border-radius: 6px;
-            border: 1px solid #bae6fd;
+            border-radius: 8px;
+            border-left: 4px solid #0ea5e9;
         }
         .sources ul {
-            margin: 8px 0;
-            padding-left: 20px;
+            margin: 10px 0;
+            padding-left: 25px;
         }
         .sources li {
-            margin: 5px 0;
+            margin: 6px 0;
             color: #0369a1;
         }
         .tabs { 
             display: flex; 
-            gap: 12px; 
+            gap: 10px; 
             margin-bottom: 25px; 
             flex-wrap: wrap; 
         }
@@ -114,10 +121,11 @@
             font-size: 14px;
             font-weight: 500;
             transition: all 0.2s;
-            border: 2px solid #e2e8f0;
+            border: 2px solid transparent;
         }
         .tab:hover {
             background: #e2e8f0;
+            transform: translateY(-1px);
         }
         .tab.active { 
             background: #f97316; 
@@ -131,10 +139,16 @@
             margin-bottom: 25px; 
             border: 2px solid #0ea5e9; 
         }
+        .test-section h3 {
+            margin-bottom: 15px;
+            color: #0c4a6e;
+        }
         .test-button { 
             background: #0ea5e9; 
-            margin-right: 12px;
+            margin-right: 10px;
             margin-bottom: 10px;
+            padding: 10px 20px;
+            font-size: 14px;
         }
         .test-button:hover { 
             background: #0284c7; 
@@ -148,6 +162,8 @@
             font-size: 13px;
             border: 1px solid #dee2e6;
             white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
         }
         .loading {
             opacity: 0.7;
@@ -155,54 +171,88 @@
         }
         .trust-score {
             display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
+            padding: 4px 10px;
+            border-radius: 6px;
             font-size: 12px;
             font-weight: 600;
+            margin-left: 8px;
         }
         .trust-high { background: #dcfce7; color: #166534; }
         .trust-medium { background: #fef3c7; color: #92400e; }
         .messages-container {
-            max-height: 400px;
+            max-height: 450px;
             overflow-y: auto;
             margin-bottom: 20px;
             padding: 15px;
             border: 1px solid #e2e8f0;
             border-radius: 8px;
+            background: #fafafa;
+        }
+        .messages-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .messages-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        .messages-container::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        .messages-container::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+        .status-online { background: #10b981; }
+        .status-offline { background: #ef4444; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
+    <div class=\"container\">
+        <div class=\"header\">
             <h1>🎓 Étienne</h1>
             <p>Assistant IA pour les étudiants québécois</p>
-            <p style="font-size: 14px; opacity: 0.9;">Collège Champagneur • Sources Internationales</p>
+            <p style=\"font-size: 14px; opacity: 0.9;\">Collège Champagneur • Sources Internationales • Détection IA • Vérification Plagiat</p>
+            <p style=\"font-size: 12px; margin-top: 10px;\">
+                <span class=\"status-indicator status-online\"></span>Connecté à l'API Vercel
+            </p>
         </div>
 
         <!-- Section de test API -->
-        <div class="test-section">
-            <h3>🧪 Diagnostic de Connexion</h3>
-            <button class="test-button" onclick="testAPI()">🔗 Test API</button>
-            <button class="test-button" onclick="testChatAPI()">💬 Test Chat</button>
-            <button class="test-button" onclick="testSubjects()">📚 Test Matières</button>
-            <div id="testResult" class="result" style="display: none;"></div>
+        <div class=\"test-section\">
+            <h3>🧪 Tests de Diagnostic</h3>
+            <button class=\"test-button\" onclick=\"testAPI()\">🔗 Tester API</button>
+            <button class=\"test-button\" onclick=\"testChatAPI()\">💬 Tester Chat</button>
+            <button class=\"test-button\" onclick=\"testSubjects()\">📚 Tester Matières</button>
+            <button class=\"test-button\" onclick=\"testAIDetection()\">🤖 Tester Détection IA</button>
+            <div id=\"testResult\" class=\"result\" style=\"display: none;\"></div>
         </div>
 
-        <div class="chat-container">
-            <div class="tabs">
-                <div class="tab active" onclick="setActiveTab('je_veux')">🎯 Je veux</div>
-                <div class="tab" onclick="setActiveTab('je_recherche')">🔍 Je recherche</div>
-                <div class="tab" onclick="setActiveTab('sources_fiables')">✅ Sources fiables</div>
-                <div class="tab" onclick="setActiveTab('activites')">📚 Activités</div>
-                <div class="tab" onclick="setActiveTab('verification')">🛡️ Vérification</div>
+        <div class=\"chat-container\">
+            <div class=\"tabs\">
+                <div class=\"tab active\" onclick=\"setActiveTab('je_veux')\">🎯 Je veux</div>
+                <div class=\"tab\" onclick=\"setActiveTab('je_recherche')\">🔍 Je recherche</div>
+                <div class=\"tab\" onclick=\"setActiveTab('sources_fiables')\">✅ Sources fiables</div>
+                <div class=\"tab\" onclick=\"setActiveTab('activites')\">📚 Activités</div>
+                <div class=\"tab\" onclick=\"setActiveTab('verification')\">🛡️ Vérification</div>
             </div>
 
-            <div class="messages-container" id="messages"></div>
+            <div class=\"messages-container\" id=\"messages\"></div>
 
-            <div class="input-container">
-                <input type="text" id="messageInput" placeholder="Posez votre question à Étienne..." onkeypress="handleKeyPress(event)">
-                <button id="sendButton" onclick="sendMessage()">Envoyer</button>
+            <div class=\"input-container\">
+                <input type=\"text\" id=\"messageInput\" placeholder=\"Posez votre question à Étienne...\" onkeypress=\"handleKeyPress(event)\">
+                <button id=\"sendButton\" onclick=\"sendMessage()\">Envoyer</button>
             </div>
         </div>
     </div>
@@ -210,6 +260,57 @@
     <script>
         let activeTab = 'je_veux';
         let isLoading = false;
+        let apiStatus = 'checking';
+
+        // Vérifier la connexion API au chargement
+        window.onload = async () => {
+            console.log('🚀 Étienne Interface Loaded');
+            console.log('🌐 Origin:', window.location.origin);
+            console.log('📍 Current URL:', window.location.href);
+            
+            addMessage('Bonjour ! Je suis **Étienne**, votre assistant IA éducatif du Collège Champagneur. ✨
+
+🌍 **Fonctionnalités:**
+• 📚 Sources québécoises et internationales (CliffsNotes, SparkNotes, Lecturia)
+• 🤖 Détection de contenu IA
+• 🔍 Vérification de plagiat
+• 🌐 Réponses multilingues (FR/EN)
+
+💡 Cliquez sur \"🔗 Tester API\" ci-dessus pour vérifier la connexion au backend !', 'ai');
+            
+            // Test de connexion automatique
+            await testAPIStatus();
+        };
+
+        async function testAPIStatus() {
+            try {
+                const response = await fetch('/api', {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    apiStatus = 'online';
+                    updateStatusIndicator(true);
+                    console.log('✅ API Status: Online');
+                } else {
+                    apiStatus = 'offline';
+                    updateStatusIndicator(false);
+                    console.warn('⚠️ API Status: Offline');
+                }
+            } catch (error) {
+                apiStatus = 'offline';
+                updateStatusIndicator(false);
+                console.error('❌ API Error:', error);
+            }
+        }
+
+        function updateStatusIndicator(isOnline) {
+            const indicator = document.querySelector('.status-indicator');
+            if (indicator) {
+                indicator.className = `status-indicator ${isOnline ? 'status-online' : 'status-offline'}`;
+            }
+        }
 
         function setActiveTab(tab) {
             activeTab = tab;
@@ -217,11 +318,11 @@
             event.target.classList.add('active');
             
             const placeholders = {
-                'je_veux': 'Je veux comprendre...',
-                'je_recherche': 'Je recherche des informations sur...',
-                'sources_fiables': 'Quelles sont les sources fiables pour...',
-                'activites': 'Créez une activité pédagogique sur...',
-                'verification': 'Collez votre texte à analyser pour détection IA/plagiat...'
+                'je_veux': '💡 Ex: Je veux comprendre les fonctions mathématiques...',
+                'je_recherche': '🔍 Ex: Je recherche des informations sur la Révolution tranquille...',
+                'sources_fiables': '✅ Ex: Quelles sont les sources fiables sur l'environnement?',
+                'activites': '📚 Ex: Créez une activité pédagogique sur les probabilités...',
+                'verification': '🛡️ Collez votre texte pour vérifier s'il a été généré par IA ou contient du plagiat...'
             };
             document.getElementById('messageInput').placeholder = placeholders[tab];
         }
@@ -236,31 +337,39 @@
         async function testAPI() {
             const resultDiv = document.getElementById('testResult');
             resultDiv.style.display = 'block';
-            resultDiv.innerHTML = '🔄 Test de l\'endpoint /api...';
+            resultDiv.innerHTML = '🔄 Test de l'endpoint /api...';
             
             try {
                 console.log('🔍 Testing:', window.location.origin + '/api');
                 const response = await fetch('/api', {
                     method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    }
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }
                 });
                 
                 console.log('✅ Response status:', response.status);
-                console.log('✅ Response headers:', Object.fromEntries(response.headers.entries()));
                 
                 if (response.ok) {
                     const data = await response.json();
-                    resultDiv.innerHTML = `✅ API FONCTIONNE!\n${JSON.stringify(data, null, 2)}`;
+                    resultDiv.innerHTML = `✅ API FONCTIONNE PARFAITEMENT!
+
+${JSON.stringify(data, null, 2)}`;
+                    updateStatusIndicator(true);
                 } else {
                     const errorText = await response.text();
-                    resultDiv.innerHTML = `❌ API Error ${response.status}:\n${errorText}`;
+                    resultDiv.innerHTML = `❌ API Error ${response.status}:
+${errorText}`;
+                    updateStatusIndicator(false);
                 }
             } catch (error) {
                 console.error('❌ API Error:', error);
-                resultDiv.innerHTML = `❌ ERREUR CRITIQUE:\n${error.message}\n\nVérifiez:\n- Backend déployé?\n- Variables d'environnement?\n- CORS configuré?`;
+                resultDiv.innerHTML = `❌ ERREUR DE CONNEXION:
+${error.message}
+
+🔧 Vérifications:
+• Backend déployé sur Vercel?
+• Variables d'environnement configurées?
+• CORS activé?`;
+                updateStatusIndicator(false);
             }
         }
 
@@ -271,19 +380,16 @@
             
             try {
                 const testPayload = {
-                    message: "Test de connexion Étienne",
-                    message_type: "je_veux",
-                    session_id: "test-" + Date.now()
+                    message: \"Test de connexion Étienne\",
+                    message_type: \"je_veux\",
+                    session_id: \"test-\" + Date.now()
                 };
                 
                 console.log('📤 Sending payload:', testPayload);
                 
                 const response = await fetch('/api/chat', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                     body: JSON.stringify(testPayload)
                 });
                 
@@ -291,14 +397,21 @@
                 
                 if (response.ok) {
                     const data = await response.json();
-                    resultDiv.innerHTML = `✅ CHAT FONCTIONNE!\nRéponse: "${data.response?.substring(0, 100)}..."\nSources: ${data.sources?.join(', ')}`;
+                    resultDiv.innerHTML = `✅ CHAT FONCTIONNE!
+
+Réponse: \"${data.response?.substring(0, 150)}...\"
+
+Sources: ${data.sources?.length || 0} sources trouvées
+Score de confiance: ${data.trust_score || 'N/A'}`;
                 } else {
                     const errorText = await response.text();
-                    resultDiv.innerHTML = `❌ Chat Error ${response.status}:\n${errorText}`;
+                    resultDiv.innerHTML = `❌ Chat Error ${response.status}:
+${errorText}`;
                 }
             } catch (error) {
                 console.error('❌ Chat Error:', error);
-                resultDiv.innerHTML = `❌ ERREUR CHAT:\n${error.message}`;
+                resultDiv.innerHTML = `❌ ERREUR CHAT:
+${error.message}`;
             }
         }
 
@@ -311,12 +424,42 @@
                 const response = await fetch('/api/subjects');
                 if (response.ok) {
                     const data = await response.json();
-                    resultDiv.innerHTML = `✅ MATIÈRES OK!\n${JSON.stringify(data, null, 2)}`;
+                    resultDiv.innerHTML = `✅ MATIÈRES CHARGÉES!
+
+${JSON.stringify(data, null, 2)}`;
                 } else {
                     resultDiv.innerHTML = `❌ Subjects Error: ${response.status}`;
                 }
             } catch (error) {
-                resultDiv.innerHTML = `❌ ERREUR SUBJECTS: ${error.message}`;
+                resultDiv.innerHTML = `❌ ERREUR SUBJECTS:
+${error.message}`;
+            }
+        }
+
+        async function testAIDetection() {
+            const resultDiv = document.getElementById('testResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '🔄 Test de la détection IA /api/detect-ai...';
+            
+            try {
+                const testText = \"This is a test text to check if AI detection is working properly. It contains common patterns that might be found in AI-generated content.\";
+                const response = await fetch('/api/detect-ai', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ text: testText })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `✅ DÉTECTION IA OPÉRATIONNELLE!
+
+${JSON.stringify(data, null, 2)}`;
+                } else {
+                    resultDiv.innerHTML = `❌ AI Detection Error: ${response.status}`;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `❌ ERREUR DÉTECTION IA:
+${error.message}`;
             }
         }
 
@@ -331,7 +474,7 @@
             // État de chargement
             isLoading = true;
             sendButton.disabled = true;
-            sendButton.textContent = '⏳';
+            sendButton.textContent = '⏳ Envoi...';
             input.disabled = true;
 
             // Afficher message utilisateur
@@ -340,7 +483,7 @@
 
             try {
                 if (activeTab === 'verification') {
-                    // Analyse de texte
+                    // Analyse de texte (IA + Plagiat)
                     const response = await fetch('/api/analyze-text', {
                         method: 'POST',
                         headers: { 
@@ -356,14 +499,26 @@
                     if (response.ok) {
                         const data = await response.json();
                         
-                        let analysisText = `🤖 **Détection IA:** ${Math.round(data.ai_detection.ai_probability * 100)}% probabilité (${data.ai_detection.confidence})\n\n`;
-                        analysisText += `🔍 **Vérification Plagiat:** ${Math.round(data.plagiarism_check.plagiarism_risk * 100)}% risque\n\n`;
-                        analysisText += `🗣️ **Langue détectée:** ${data.detected_language === 'en' ? 'Anglais' : 'Français'}\n\n`;
-                        analysisText += `💡 **Recommandation:** ${data.ai_detection.is_likely_ai ? 'Texte possiblement généré par IA' : 'Texte semble authentique'}`;
+                        let analysisText = `🤖 **Détection IA:**
+• Probabilité: ${Math.round(data.ai_detection.ai_probability * 100)}%
+• Confiance: ${data.ai_detection.confidence}
+• Verdict: ${data.ai_detection.is_likely_ai ? '⚠️ Probablement généré par IA' : '✅ Semble authentique'}
+
+`;
+                        analysisText += `🔍 **Vérification Plagiat:**
+• Risque: ${Math.round(data.plagiarism_check.plagiarism_risk * 100)}%
+• Niveau: ${data.plagiarism_check.risk_level}
+• ${data.plagiarism_check.suspicious_phrases.length} phrases suspectes détectées
+
+`;
+                        analysisText += `🗣️ **Langue:** ${data.detected_language === 'en' ? '🇬🇧 Anglais' : '🇫🇷 Français'}
+`;
+                        analysisText += `📊 **Mots:** ${data.word_count}`;
                         
                         addMessage(analysisText, 'ai');
                     } else {
-                        addMessage('❌ Erreur d\'analyse. Vérifiez votre texte.', 'ai');
+                        const errorText = await response.text();
+                        addMessage(`❌ Erreur d'analyse (${response.status}). Veuillez réessayer.`, 'ai');
                     }
                 } else {
                     // Chat normal
@@ -385,15 +540,22 @@
                         addMessage(data.response, 'ai', data.sources, data.trust_score);
                     } else {
                         const errorText = await response.text();
-                        addMessage(`❌ Erreur ${response.status}: Vérifiez les logs Vercel pour plus de détails.`, 'ai');
+                        addMessage(`❌ Erreur ${response.status}. Le serveur a rencontré un problème. Consultez les logs Vercel pour plus de détails.`, 'ai');
+                        console.error('Error response:', errorText);
                     }
                 }
             } catch (error) {
-                console.error('🚨 Erreur détaillée:', error);
+                console.error('🚨 Erreur complète:', error);
                 console.error('🚨 Error stack:', error.stack);
-                addMessage(`❌ **Erreur de connexion:** ${error.message}\n\n🔧 **Actions à vérifier:**\n• Backend API déployé?\n• Variables d'environnement configurées?\n• Réseau stable?`, 'ai');
+                addMessage(`❌ **Erreur de connexion:** ${error.message}
+
+🔧 **Actions recommandées:**
+• Vérifiez que le backend est déployé
+• Testez l'API avec le bouton \"🔗 Tester API\"
+• Vérifiez votre connexion internet
+• Consultez la console (F12) pour plus de détails`, 'ai');
             } finally {
-                // Restaurer l'état normal
+                // Restaurer l'état
                 isLoading = false;
                 sendButton.disabled = false;
                 sendButton.textContent = 'Envoyer';
@@ -407,18 +569,19 @@
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${sender === 'user' ? 'user-message' : 'ai-message'}`;
             
-            let content = `<strong>${sender === 'user' ? 'Vous' : '🎓 Étienne'}:</strong> ${text.replace(/\n/g, '<br>')}`;
+            let content = `<strong>${sender === 'user' ? '👤 Vous' : '🎓 Étienne'}:</strong> ${text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/
+/g, '<br>')}`;
             
             // Afficher trust score
-            if (trustScore !== null) {
+            if (trustScore !== null && trustScore !== undefined) {
                 const scoreClass = trustScore >= 0.9 ? 'trust-high' : 'trust-medium';
                 const scoreText = Math.round(trustScore * 100);
-                content += ` <span class="trust-score ${scoreClass}">🔒 Fiabilité: ${scoreText}%</span>`;
+                content += ` <span class=\"trust-score ${scoreClass}\">🔒 Fiabilité: ${scoreText}%</span>`;
             }
             
             // Afficher sources
             if (sources && sources.length > 0) {
-                content += '<div class="sources"><strong>📚 Sources Recommandées:</strong><ul>';
+                content += '<div class=\"sources\"><strong>📚 Sources Recommandées:</strong><ul>';
                 sources.forEach(source => {
                     content += `<li>🔗 ${source}</li>`;
                 });
@@ -430,21 +593,27 @@
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
 
-        // Message de bienvenue
-        window.onload = () => {
-            console.log('🚀 Étienne Interface Loaded');
-            console.log('🌐 Origin:', window.location.origin);
-            console.log('📍 Current URL:', window.location.href);
-            
-            addMessage('Bonjour ! Je suis **Étienne**, votre assistant IA éducatif. ✨\n\n🌍 **Nouvelles fonctionnalités:**\n• Sources anglaises: CliffsNotes, SparkNotes, Lecturia\n• Détection IA et vérification plagiat\n• Réponses multilingues FR/EN\n\n🧪 **Cliquez "Test API" ci-dessus pour vérifier la connexion !**', 'ai');
-        };
-
-        // Gestion d'erreur globale
+        // Gestion d'erreurs globales
         window.onerror = function(msg, url, lineNo, columnNo, error) {
             console.error('🚨 JavaScript Error:', msg, 'at', url + ':' + lineNo);
             return false;
         };
+
+        // Log des requêtes fetch pour debug
+        const originalFetch = window.fetch;
+        window.fetch = function(...args) {
+            console.log('📡 Fetch Request:', args[0]);
+            return originalFetch.apply(this, args)
+                .then(response => {
+                    console.log('📡 Fetch Response:', response.status, response.url);
+                    return response;
+                })
+                .catch(error => {
+                    console.error('📡 Fetch Error:', error);
+                    throw error;
+                });
+        };
     </script>
 </body>
 </html>
-
+"
