@@ -1,33 +1,33 @@
 {
-  \"version\": 2,
-  \"builds\": [
+  "version": 2,
+  "builds": [
     {
-      \"src\": \"api/index.py\",
-      \"use\": \"@vercel/python\",
-      \"config\": {
-        \"maxLambdaSize\": \"50mb\"
+      "src": "api/index.py",
+      "use": "@vercel/python",
+      "config": {
+        "maxLambdaSize": "50mb"
       }
     },
     {
-      \"src\": \"index.html\",
-      \"use\": \"@vercel/static\"
+      "src": "index.html",
+      "use": "@vercel/static"
     }
   ],
-  \"routes\": [
+  "routes": [
     {
-      \"src\": \"/api/(.*)\",
-      \"dest\": \"api/index.py\"
+      "src": "/api/(.*)",
+      "dest": "api/index.py"
     },
     {
-      \"src\": \"/(.*)\",
-      \"dest\": \"/index.html\"
+      "src": "/(.*)",
+      "dest": "/index.html"
     }
   ],
-  \"functions\": {
-    \"api/index.py\": {
-      \"runtime\": \"python3.9\",
-      \"maxDuration\": 30,
-      \"memory\": 1024
+  "functions": {
+    "api/index.py": {
+      "runtime": "python3.9",
+      "maxDuration": 30,
+      "memory": 1024
     }
   }
 }
