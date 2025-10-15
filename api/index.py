@@ -153,7 +153,7 @@ def detect_language(text: str) -> str:
     
     return "en" if english_count > french_count and english_count > 0 else "fr"
     def detect_ai_content(text: str) -> dict:
-    """
+        """
     Détecte si un texte a été généré par IA
     Analyse les patterns, structure et vocabulaire
     """
