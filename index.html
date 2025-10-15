@@ -550,7 +550,24 @@
             console.error('🚨 JavaScript Error:', msg, 'at', url + ':' + lineNo);
             return false;
         };
-
+        // Configuration Backend Render
+        const BACKEND_URL = 'https://votre-url.onrender.com'; // ← Remplacez par votre URL
+    
+        // Modifiez tous les appels fetch() pour utiliser BACKEND_URL
+    
+        async function testAPI() {
+        const response = await fetch(BACKEND_URL + '/api');
+        // ...
+    }
+    
+    async function sendMessage() {
+        const response = await fetch(BACKEND_URL + '/api/chat', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({...})
+        });
+        // ...
+    }
         // Log des requêtes fetch pour debug
         const originalFetch = window.fetch;
         window.fetch = function(...args) {
