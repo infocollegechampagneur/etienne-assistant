@@ -165,10 +165,6 @@
             max-height: 300px;
             overflow-y: auto;
         }
-        .loading {
-            opacity: 0.7;
-            pointer-events: none;
-        }
         .trust-score {
             display: inline-block;
             padding: 4px 10px;
@@ -225,11 +221,10 @@
             <p>Assistant IA pour les étudiants québécois</p>
             <p style="font-size: 14px; opacity: 0.9;">Collège Champagneur • Sources Internationales • Détection IA • Vérification Plagiat</p>
             <p style="font-size: 12px; margin-top: 10px;">
-                <span class="status-indicator status-online"></span>Connecté à l'API Vercel
+                <span class="status-indicator status-online"></span>Connecté à Render
             </p>
         </div>
 
-        <!-- Section de test API -->
         <div class="test-section">
             <h3>🧪 Tests de Diagnostic</h3>
             <button class="test-button" onclick="testAPI()">🔗 Tester API</button>
@@ -258,25 +253,25 @@
     </div>
 
     <script>
+        // Configuration Backend Render
+        const BACKEND_URL = 'https://etienne-api.onrender.com';
+        
         let activeTab = 'je_veux';
         let isLoading = false;
         let apiStatus = 'checking';
 
-        // Vérifier la connexion API au chargement
         window.onload = async () => {
             console.log('🚀 Étienne Interface Loaded');
-            console.log('🌐 Origin:', window.location.origin);
-            console.log('📍 Current URL:', window.location.href);
+            console.log('🌐 Backend URL:', BACKEND_URL);
             
-            addMessage('Bonjour ! Je suis **Étienne**, votre assistant IA éducatif du Collège Champagneur. ✨\n\n🌍 **Fonctionnalités:**\n• 📚 Sources québécoises et internationales (CliffsNotes, SparkNotes, Lecturia)\n• 🤖 Détection de contenu IA\n• 🔍 Vérification de plagiat\n• 🌐 Réponses multilingues (FR/EN)\n\n💡 Cliquez sur "🔗 Tester API" ci-dessus pour vérifier la connexion au backend !', 'ai');
+            addMessage('Bonjour ! Je suis **Étienne**, votre assistant IA éducatif du Collège Champagneur. ✨\n\n🌍 **Fonctionnalités:**\n• 📚 Sources québécoises et internationales (CliffsNotes, SparkNotes, Lecturia)\n• 🤖 Détection de contenu IA\n• 🔍 Vérification de plagiat\n• 🌐 Réponses multilingues (FR/EN)\n\n💡 Cliquez sur "🔗 Tester API" ci-dessus pour vérifier la connexion !', 'ai');
             
-            // Test de connexion automatique
             await testAPIStatus();
         };
 
         async function testAPIStatus() {
             try {
-                const response = await fetch('/api', {
+                const response = await fetch(BACKEND_URL + '/api', {
                     method: 'GET',
                     headers: { 'Accept': 'application/json' }
                 });
@@ -325,15 +320,14 @@
             }
         }
 
-        // 🧪 TESTS DE DIAGNOSTIC
         async function testAPI() {
             const resultDiv = document.getElementById('testResult');
             resultDiv.style.display = 'block';
             resultDiv.innerHTML = '🔄 Test de l\'endpoint /api...';
             
             try {
-                console.log('🔍 Testing:', window.location.origin + '/api');
-                const response = await fetch('/api', {
+                console.log('🔍 Testing:', BACKEND_URL + '/api');
+                const response = await fetch(BACKEND_URL + '/api', {
                     method: 'GET',
                     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }
                 });
@@ -351,7 +345,7 @@
                 }
             } catch (error) {
                 console.error('❌ API Error:', error);
-                resultDiv.innerHTML = `❌ ERREUR DE CONNEXION:\n${error.message}\n\n🔧 Vérifications:\n• Backend déployé sur Vercel?\n• Variables d'environnement configurées?\n• CORS activé?`;
+                resultDiv.innerHTML = `❌ ERREUR DE CONNEXION:\n${error.message}`;
                 updateStatusIndicator(false);
             }
         }
@@ -370,7 +364,7 @@
                 
                 console.log('📤 Sending payload:', testPayload);
                 
-                const response = await fetch('/api/chat', {
+                const response = await fetch(BACKEND_URL + '/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                     body: JSON.stringify(testPayload)
@@ -397,7 +391,7 @@
             resultDiv.innerHTML = '🔄 Test des matières /api/subjects...';
             
             try {
-                const response = await fetch('/api/subjects');
+                const response = await fetch(BACKEND_URL + '/api/subjects');
                 if (response.ok) {
                     const data = await response.json();
                     resultDiv.innerHTML = `✅ MATIÈRES CHARGÉES!\n\n${JSON.stringify(data, null, 2)}`;
@@ -415,8 +409,8 @@
             resultDiv.innerHTML = '🔄 Test de la détection IA /api/detect-ai...';
             
             try {
-                const testText = "This is a test text to check if AI detection is working properly. It contains common patterns that might be found in AI-generated content.";
-                const response = await fetch('/api/detect-ai', {
+                const testText = "As an AI language model, I cannot provide personal opinions. However, it is important to note that research shows various perspectives.";
+                const response = await fetch(BACKEND_URL + '/api/detect-ai', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ text: testText })
@@ -433,7 +427,6 @@
             }
         }
 
-        // 💬 FONCTION CHAT PRINCIPALE
         async function sendMessage() {
             const input = document.getElementById('messageInput');
             const sendButton = document.getElementById('sendButton');
@@ -441,20 +434,17 @@
             
             if (!message || isLoading) return;
 
-            // État de chargement
             isLoading = true;
             sendButton.disabled = true;
             sendButton.textContent = '⏳ Envoi...';
             input.disabled = true;
 
-            // Afficher message utilisateur
             addMessage(message, 'user');
             input.value = '';
 
             try {
                 if (activeTab === 'verification') {
-                    // Analyse de texte (IA + Plagiat)
-                    const response = await fetch('/api/analyze-text', {
+                    const response = await fetch(BACKEND_URL + '/api/analyze-text', {
                         method: 'POST',
                         headers: { 
                             'Content-Type': 'application/json',
@@ -480,8 +470,7 @@
                         addMessage(`❌ Erreur d'analyse (${response.status}). Veuillez réessayer.`, 'ai');
                     }
                 } else {
-                    // Chat normal
-                    const response = await fetch('/api/chat', {
+                    const response = await fetch(BACKEND_URL + '/api/chat', {
                         method: 'POST',
                         headers: { 
                             'Content-Type': 'application/json',
@@ -499,16 +488,14 @@
                         addMessage(data.response, 'ai', data.sources, data.trust_score);
                     } else {
                         const errorText = await response.text();
-                        addMessage(`❌ Erreur ${response.status}. Le serveur a rencontré un problème. Consultez les logs Vercel pour plus de détails.`, 'ai');
+                        addMessage(`❌ Erreur ${response.status}. Le serveur a rencontré un problème.`, 'ai');
                         console.error('Error response:', errorText);
                     }
                 }
             } catch (error) {
                 console.error('🚨 Erreur complète:', error);
-                console.error('🚨 Error stack:', error.stack);
-                addMessage(`❌ **Erreur de connexion:** ${error.message}\n\n🔧 **Actions recommandées:**\n• Vérifiez que le backend est déployé\n• Testez l'API avec le bouton "🔗 Tester API"\n• Vérifiez votre connexion internet\n• Consultez la console (F12) pour plus de détails`, 'ai');
+                addMessage(`❌ **Erreur de connexion:** ${error.message}\n\n🔧 **Actions recommandées:**\n• Vérifiez que le backend Render est déployé\n• Testez l'API avec le bouton "🔗 Tester API"\n• Consultez la console (F12) pour plus de détails`, 'ai');
             } finally {
-                // Restaurer l'état
                 isLoading = false;
                 sendButton.disabled = false;
                 sendButton.textContent = 'Envoyer';
@@ -524,14 +511,12 @@
             
             let content = `<strong>${sender === 'user' ? '👤 Vous' : '🎓 Étienne'}:</strong> ${text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>')}`;
             
-            // Afficher trust score
             if (trustScore !== null && trustScore !== undefined) {
                 const scoreClass = trustScore >= 0.9 ? 'trust-high' : 'trust-medium';
                 const scoreText = Math.round(trustScore * 100);
                 content += ` <span class="trust-score ${scoreClass}">🔒 Fiabilité: ${scoreText}%</span>`;
             }
             
-            // Afficher sources
             if (sources && sources.length > 0) {
                 content += '<div class="sources"><strong>📚 Sources Recommandées:</strong><ul>';
                 sources.forEach(source => {
@@ -545,30 +530,11 @@
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
 
-        // Gestion d'erreurs globales
         window.onerror = function(msg, url, lineNo, columnNo, error) {
             console.error('🚨 JavaScript Error:', msg, 'at', url + ':' + lineNo);
             return false;
         };
-        // Configuration Backend Render
-        const BACKEND_URL = 'https://votre-url.onrender.com'; // ← Remplacez par votre URL
-    
-        // Modifiez tous les appels fetch() pour utiliser BACKEND_URL
-    
-        async function testAPI() {
-        const response = await fetch(BACKEND_URL + '/api');
-        // ...
-    }
-    
-    async function sendMessage() {
-        const response = await fetch(BACKEND_URL + '/api/chat', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({...})
-        });
-        // ...
-    }
-        // Log des requêtes fetch pour debug
+
         const originalFetch = window.fetch;
         window.fetch = function(...args) {
             console.log('📡 Fetch Request:', args[0]);
@@ -585,4 +551,3 @@
     </script>
 </body>
 </html>
-
