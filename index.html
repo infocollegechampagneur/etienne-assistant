@@ -1,10 +1,10 @@
-"<!DOCTYPE html>
-<html lang=\"fr\">
+<!DOCTYPE html>
+<html lang="fr">
 <head>
-    <meta charset=\"utf-8\">
+    <meta charset="utf-8">
     <title>Étienne - Assistant IA Éducatif Québécois</title>
-    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">
-    <meta name=\"description\" content=\"Étienne - Assistant IA pour les étudiants québécois fourni par le Collège Champagneur\">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Étienne - Assistant IA pour les étudiants québécois fourni par le Collège Champagneur">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { 
@@ -219,40 +219,40 @@
     </style>
 </head>
 <body>
-    <div class=\"container\">
-        <div class=\"header\">
+    <div class="container">
+        <div class="header">
             <h1>🎓 Étienne</h1>
             <p>Assistant IA pour les étudiants québécois</p>
-            <p style=\"font-size: 14px; opacity: 0.9;\">Collège Champagneur • Sources Internationales • Détection IA • Vérification Plagiat</p>
-            <p style=\"font-size: 12px; margin-top: 10px;\">
-                <span class=\"status-indicator status-online\"></span>Connecté à l'API Vercel
+            <p style="font-size: 14px; opacity: 0.9;">Collège Champagneur • Sources Internationales • Détection IA • Vérification Plagiat</p>
+            <p style="font-size: 12px; margin-top: 10px;">
+                <span class="status-indicator status-online"></span>Connecté à l'API Vercel
             </p>
         </div>
 
         <!-- Section de test API -->
-        <div class=\"test-section\">
+        <div class="test-section">
             <h3>🧪 Tests de Diagnostic</h3>
-            <button class=\"test-button\" onclick=\"testAPI()\">🔗 Tester API</button>
-            <button class=\"test-button\" onclick=\"testChatAPI()\">💬 Tester Chat</button>
-            <button class=\"test-button\" onclick=\"testSubjects()\">📚 Tester Matières</button>
-            <button class=\"test-button\" onclick=\"testAIDetection()\">🤖 Tester Détection IA</button>
-            <div id=\"testResult\" class=\"result\" style=\"display: none;\"></div>
+            <button class="test-button" onclick="testAPI()">🔗 Tester API</button>
+            <button class="test-button" onclick="testChatAPI()">💬 Tester Chat</button>
+            <button class="test-button" onclick="testSubjects()">📚 Tester Matières</button>
+            <button class="test-button" onclick="testAIDetection()">🤖 Tester Détection IA</button>
+            <div id="testResult" class="result" style="display: none;"></div>
         </div>
 
-        <div class=\"chat-container\">
-            <div class=\"tabs\">
-                <div class=\"tab active\" onclick=\"setActiveTab('je_veux')\">🎯 Je veux</div>
-                <div class=\"tab\" onclick=\"setActiveTab('je_recherche')\">🔍 Je recherche</div>
-                <div class=\"tab\" onclick=\"setActiveTab('sources_fiables')\">✅ Sources fiables</div>
-                <div class=\"tab\" onclick=\"setActiveTab('activites')\">📚 Activités</div>
-                <div class=\"tab\" onclick=\"setActiveTab('verification')\">🛡️ Vérification</div>
+        <div class="chat-container">
+            <div class="tabs">
+                <div class="tab active" onclick="setActiveTab('je_veux')">🎯 Je veux</div>
+                <div class="tab" onclick="setActiveTab('je_recherche')">🔍 Je recherche</div>
+                <div class="tab" onclick="setActiveTab('sources_fiables')">✅ Sources fiables</div>
+                <div class="tab" onclick="setActiveTab('activites')">📚 Activités</div>
+                <div class="tab" onclick="setActiveTab('verification')">🛡️ Vérification</div>
             </div>
 
-            <div class=\"messages-container\" id=\"messages\"></div>
+            <div class="messages-container" id="messages"></div>
 
-            <div class=\"input-container\">
-                <input type=\"text\" id=\"messageInput\" placeholder=\"Posez votre question à Étienne...\" onkeypress=\"handleKeyPress(event)\">
-                <button id=\"sendButton\" onclick=\"sendMessage()\">Envoyer</button>
+            <div class="input-container">
+                <input type="text" id="messageInput" placeholder="Posez votre question à Étienne..." onkeypress="handleKeyPress(event)">
+                <button id="sendButton" onclick="sendMessage()">Envoyer</button>
             </div>
         </div>
     </div>
@@ -268,15 +268,7 @@
             console.log('🌐 Origin:', window.location.origin);
             console.log('📍 Current URL:', window.location.href);
             
-            addMessage('Bonjour ! Je suis **Étienne**, votre assistant IA éducatif du Collège Champagneur. ✨
-
-🌍 **Fonctionnalités:**
-• 📚 Sources québécoises et internationales (CliffsNotes, SparkNotes, Lecturia)
-• 🤖 Détection de contenu IA
-• 🔍 Vérification de plagiat
-• 🌐 Réponses multilingues (FR/EN)
-
-💡 Cliquez sur \"🔗 Tester API\" ci-dessus pour vérifier la connexion au backend !', 'ai');
+            addMessage('Bonjour ! Je suis **Étienne**, votre assistant IA éducatif du Collège Champagneur. ✨\n\n🌍 **Fonctionnalités:**\n• 📚 Sources québécoises et internationales (CliffsNotes, SparkNotes, Lecturia)\n• 🤖 Détection de contenu IA\n• 🔍 Vérification de plagiat\n• 🌐 Réponses multilingues (FR/EN)\n\n💡 Cliquez sur "🔗 Tester API" ci-dessus pour vérifier la connexion au backend !', 'ai');
             
             // Test de connexion automatique
             await testAPIStatus();
@@ -320,9 +312,9 @@
             const placeholders = {
                 'je_veux': '💡 Ex: Je veux comprendre les fonctions mathématiques...',
                 'je_recherche': '🔍 Ex: Je recherche des informations sur la Révolution tranquille...',
-                'sources_fiables': '✅ Ex: Quelles sont les sources fiables sur l'environnement?',
+                'sources_fiables': '✅ Ex: Quelles sont les sources fiables sur l\'environnement?',
                 'activites': '📚 Ex: Créez une activité pédagogique sur les probabilités...',
-                'verification': '🛡️ Collez votre texte pour vérifier s'il a été généré par IA ou contient du plagiat...'
+                'verification': '🛡️ Collez votre texte pour vérifier s\'il a été généré par IA ou contient du plagiat...'
             };
             document.getElementById('messageInput').placeholder = placeholders[tab];
         }
@@ -337,7 +329,7 @@
         async function testAPI() {
             const resultDiv = document.getElementById('testResult');
             resultDiv.style.display = 'block';
-            resultDiv.innerHTML = '🔄 Test de l'endpoint /api...';
+            resultDiv.innerHTML = '🔄 Test de l\'endpoint /api...';
             
             try {
                 console.log('🔍 Testing:', window.location.origin + '/api');
@@ -350,25 +342,16 @@
                 
                 if (response.ok) {
                     const data = await response.json();
-                    resultDiv.innerHTML = `✅ API FONCTIONNE PARFAITEMENT!
-
-${JSON.stringify(data, null, 2)}`;
+                    resultDiv.innerHTML = `✅ API FONCTIONNE PARFAITEMENT!\n\n${JSON.stringify(data, null, 2)}`;
                     updateStatusIndicator(true);
                 } else {
                     const errorText = await response.text();
-                    resultDiv.innerHTML = `❌ API Error ${response.status}:
-${errorText}`;
+                    resultDiv.innerHTML = `❌ API Error ${response.status}:\n${errorText}`;
                     updateStatusIndicator(false);
                 }
             } catch (error) {
                 console.error('❌ API Error:', error);
-                resultDiv.innerHTML = `❌ ERREUR DE CONNEXION:
-${error.message}
-
-🔧 Vérifications:
-• Backend déployé sur Vercel?
-• Variables d'environnement configurées?
-• CORS activé?`;
+                resultDiv.innerHTML = `❌ ERREUR DE CONNEXION:\n${error.message}\n\n🔧 Vérifications:\n• Backend déployé sur Vercel?\n• Variables d'environnement configurées?\n• CORS activé?`;
                 updateStatusIndicator(false);
             }
         }
@@ -380,9 +363,9 @@ ${error.message}
             
             try {
                 const testPayload = {
-                    message: \"Test de connexion Étienne\",
-                    message_type: \"je_veux\",
-                    session_id: \"test-\" + Date.now()
+                    message: "Test de connexion Étienne",
+                    message_type: "je_veux",
+                    session_id: "test-" + Date.now()
                 };
                 
                 console.log('📤 Sending payload:', testPayload);
@@ -397,21 +380,14 @@ ${error.message}
                 
                 if (response.ok) {
                     const data = await response.json();
-                    resultDiv.innerHTML = `✅ CHAT FONCTIONNE!
-
-Réponse: \"${data.response?.substring(0, 150)}...\"
-
-Sources: ${data.sources?.length || 0} sources trouvées
-Score de confiance: ${data.trust_score || 'N/A'}`;
+                    resultDiv.innerHTML = `✅ CHAT FONCTIONNE!\n\nRéponse: "${data.response?.substring(0, 150)}..."\n\nSources: ${data.sources?.length || 0} sources trouvées\nScore de confiance: ${data.trust_score || 'N/A'}`;
                 } else {
                     const errorText = await response.text();
-                    resultDiv.innerHTML = `❌ Chat Error ${response.status}:
-${errorText}`;
+                    resultDiv.innerHTML = `❌ Chat Error ${response.status}:\n${errorText}`;
                 }
             } catch (error) {
                 console.error('❌ Chat Error:', error);
-                resultDiv.innerHTML = `❌ ERREUR CHAT:
-${error.message}`;
+                resultDiv.innerHTML = `❌ ERREUR CHAT:\n${error.message}`;
             }
         }
 
@@ -424,15 +400,12 @@ ${error.message}`;
                 const response = await fetch('/api/subjects');
                 if (response.ok) {
                     const data = await response.json();
-                    resultDiv.innerHTML = `✅ MATIÈRES CHARGÉES!
-
-${JSON.stringify(data, null, 2)}`;
+                    resultDiv.innerHTML = `✅ MATIÈRES CHARGÉES!\n\n${JSON.stringify(data, null, 2)}`;
                 } else {
                     resultDiv.innerHTML = `❌ Subjects Error: ${response.status}`;
                 }
             } catch (error) {
-                resultDiv.innerHTML = `❌ ERREUR SUBJECTS:
-${error.message}`;
+                resultDiv.innerHTML = `❌ ERREUR SUBJECTS:\n${error.message}`;
             }
         }
 
@@ -442,7 +415,7 @@ ${error.message}`;
             resultDiv.innerHTML = '🔄 Test de la détection IA /api/detect-ai...';
             
             try {
-                const testText = \"This is a test text to check if AI detection is working properly. It contains common patterns that might be found in AI-generated content.\";
+                const testText = "This is a test text to check if AI detection is working properly. It contains common patterns that might be found in AI-generated content.";
                 const response = await fetch('/api/detect-ai', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -451,15 +424,12 @@ ${error.message}`;
                 
                 if (response.ok) {
                     const data = await response.json();
-                    resultDiv.innerHTML = `✅ DÉTECTION IA OPÉRATIONNELLE!
-
-${JSON.stringify(data, null, 2)}`;
+                    resultDiv.innerHTML = `✅ DÉTECTION IA OPÉRATIONNELLE!\n\n${JSON.stringify(data, null, 2)}`;
                 } else {
                     resultDiv.innerHTML = `❌ AI Detection Error: ${response.status}`;
                 }
             } catch (error) {
-                resultDiv.innerHTML = `❌ ERREUR DÉTECTION IA:
-${error.message}`;
+                resultDiv.innerHTML = `❌ ERREUR DÉTECTION IA:\n${error.message}`;
             }
         }
 
@@ -499,20 +469,9 @@ ${error.message}`;
                     if (response.ok) {
                         const data = await response.json();
                         
-                        let analysisText = `🤖 **Détection IA:**
-• Probabilité: ${Math.round(data.ai_detection.ai_probability * 100)}%
-• Confiance: ${data.ai_detection.confidence}
-• Verdict: ${data.ai_detection.is_likely_ai ? '⚠️ Probablement généré par IA' : '✅ Semble authentique'}
-
-`;
-                        analysisText += `🔍 **Vérification Plagiat:**
-• Risque: ${Math.round(data.plagiarism_check.plagiarism_risk * 100)}%
-• Niveau: ${data.plagiarism_check.risk_level}
-• ${data.plagiarism_check.suspicious_phrases.length} phrases suspectes détectées
-
-`;
-                        analysisText += `🗣️ **Langue:** ${data.detected_language === 'en' ? '🇬🇧 Anglais' : '🇫🇷 Français'}
-`;
+                        let analysisText = `🤖 **Détection IA:**\n• Probabilité: ${Math.round(data.ai_detection.ai_probability * 100)}%\n• Confiance: ${data.ai_detection.confidence}\n• Verdict: ${data.ai_detection.is_likely_ai ? '⚠️ Probablement généré par IA' : '✅ Semble authentique'}\n\n`;
+                        analysisText += `🔍 **Vérification Plagiat:**\n• Risque: ${Math.round(data.plagiarism_check.plagiarism_risk * 100)}%\n• Niveau: ${data.plagiarism_check.risk_level}\n• ${data.plagiarism_check.suspicious_phrases.length} phrases suspectes détectées\n\n`;
+                        analysisText += `🗣️ **Langue:** ${data.detected_language === 'en' ? '🇬🇧 Anglais' : '🇫🇷 Français'}\n`;
                         analysisText += `📊 **Mots:** ${data.word_count}`;
                         
                         addMessage(analysisText, 'ai');
@@ -547,13 +506,7 @@ ${error.message}`;
             } catch (error) {
                 console.error('🚨 Erreur complète:', error);
                 console.error('🚨 Error stack:', error.stack);
-                addMessage(`❌ **Erreur de connexion:** ${error.message}
-
-🔧 **Actions recommandées:**
-• Vérifiez que le backend est déployé
-• Testez l'API avec le bouton \"🔗 Tester API\"
-• Vérifiez votre connexion internet
-• Consultez la console (F12) pour plus de détails`, 'ai');
+                addMessage(`❌ **Erreur de connexion:** ${error.message}\n\n🔧 **Actions recommandées:**\n• Vérifiez que le backend est déployé\n• Testez l'API avec le bouton "🔗 Tester API"\n• Vérifiez votre connexion internet\n• Consultez la console (F12) pour plus de détails`, 'ai');
             } finally {
                 // Restaurer l'état
                 isLoading = false;
@@ -569,19 +522,18 @@ ${error.message}`;
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${sender === 'user' ? 'user-message' : 'ai-message'}`;
             
-            let content = `<strong>${sender === 'user' ? '👤 Vous' : '🎓 Étienne'}:</strong> ${text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/
-/g, '<br>')}`;
+            let content = `<strong>${sender === 'user' ? '👤 Vous' : '🎓 Étienne'}:</strong> ${text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>')}`;
             
             // Afficher trust score
             if (trustScore !== null && trustScore !== undefined) {
                 const scoreClass = trustScore >= 0.9 ? 'trust-high' : 'trust-medium';
                 const scoreText = Math.round(trustScore * 100);
-                content += ` <span class=\"trust-score ${scoreClass}\">🔒 Fiabilité: ${scoreText}%</span>`;
+                content += ` <span class="trust-score ${scoreClass}">🔒 Fiabilité: ${scoreText}%</span>`;
             }
             
             // Afficher sources
             if (sources && sources.length > 0) {
-                content += '<div class=\"sources\"><strong>📚 Sources Recommandées:</strong><ul>';
+                content += '<div class="sources"><strong>📚 Sources Recommandées:</strong><ul>';
                 sources.forEach(source => {
                     content += `<li>🔗 ${source}</li>`;
                 });
@@ -616,4 +568,4 @@ ${error.message}`;
     </script>
 </body>
 </html>
-"
+
