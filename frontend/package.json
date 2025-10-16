@@ -1,4 +1,4 @@
-"{
+{
   \"name\": \"etienne-simple\",
   \"version\": \"0.1.0\",
   \"private\": true,
@@ -35,4 +35,3 @@
     \"node\": \">=18.0.0\"
   }
 }
-"
