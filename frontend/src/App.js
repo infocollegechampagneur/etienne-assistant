@@ -181,13 +181,13 @@ function App() {
   };
 
   return (
-    <div className=\"app-container\">
-      <header className=\"header\">
+    <div className="app-container">
+      <header className="header">
         <h1>É Étienne</h1>
         <p>Assistant IA pour les étudiants québécois fourni par le Collège Champagneur</p>
       </header>
 
-      <div className=\"main-nav\">
+      <div className="main-nav">
         <button 
           className={`nav-btn ${activeSection === 'chat' ? 'active' : ''}`}
           onClick={() => setActiveSection('chat')}
@@ -221,8 +221,8 @@ function App() {
       </div>
 
       {activeSection === 'chat' && (
-        <div className=\"chat-container\">
-          <div className=\"tabs\">
+        <div className="chat-container">
+          <div className="tabs">
             {tabs.map(tab => (
               <button
                 key={tab}
@@ -234,7 +234,7 @@ function App() {
             ))}
           </div>
 
-          <div className=\"messages-area\">
+          <div className="messages-area">
             {messages.length === 0 && (
               <div style={{ textAlign: 'center', color: '#999', padding: '40px' }}>
                 <h3>Bonjour! 👋</h3>
@@ -244,51 +244,51 @@ function App() {
 
             {messages.map((msg, index) => (
               <div key={index} className={`message ${msg.role}`}>
-                <div className=\"message-label\">
+                <div className="message-label">
                   {msg.role === 'user' ? 'Vous' : 'Étienne'}
                 </div>
-                <div className=\"message-content\">
+                <div className="message-content">
                   {msg.content}
                 </div>
                 {msg.trust_score && msg.trust_score >= 0.9 && (
-                  <div className=\"trust-badge\">
+                  <div className="trust-badge">
                     ✓ Sources fiables ({Math.round(msg.trust_score * 100)}%)
                   </div>
                 )}
                 {msg.sources && msg.sources.length > 0 && (
-                  <div className=\"sources\">
+                  <div className="sources">
                     <strong>Sources:</strong> {msg.sources.slice(0, 3).join(', ')}
                   </div>
                 )}
                 {msg.role === 'assistant' && msg.content.length > 200 && (
-                  <div className=\"download-buttons\">
-                    <button onClick={() => handleDownload('pdf', msg.messageId)} className=\"download-btn\">📄 PDF</button>
-                    <button onClick={() => handleDownload('docx', msg.messageId)} className=\"download-btn\">📝 Word</button>
-                    <button onClick={() => handleDownload('pptx', msg.messageId)} className=\"download-btn\">📊 PowerPoint</button>
+                  <div className="download-buttons">
+                    <button onClick={() => handleDownload('pdf', msg.messageId)} className="download-btn">📄 PDF</button>
+                    <button onClick={() => handleDownload('docx', msg.messageId)} className="download-btn">📝 Word</button>
+                    <button onClick={() => handleDownload('pptx', msg.messageId)} className="download-btn">📊 PowerPoint</button>
                   </div>
                 )}
               </div>
             ))}
 
             {loading && (
-              <div className=\"loading\">
+              <div className="loading">
                 Étienne réfléchit...
               </div>
             )}
           </div>
 
-          <div className=\"input-area\">
+          <div className="input-area">
             <input
-              type=\"text\"
-              className=\"chat-input\"
-              placeholder=\"Posez votre question à Étienne...\"
+              type="text"
+              className="chat-input"
+              placeholder="Posez votre question à Étienne..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
               disabled={loading}
             />
             <button
-              className=\"send-button\"
+              className="send-button"
               onClick={handleSend}
               disabled={loading || !input.trim()}
             >
@@ -299,18 +299,18 @@ function App() {
       )}
 
       {activeSection === 'ai-detection' && (
-        <div className=\"tool-container\">
+        <div className="tool-container">
           <h2>🤖 Détection de Contenu IA</h2>
           <p>Analysez si un texte a été généré par une intelligence artificielle.</p>
           <textarea
-            className=\"tool-textarea\"
-            placeholder=\"Collez le texte à analyser ici...\"
+            className="tool-textarea"
+            placeholder="Collez le texte à analyser ici..."
             value={aiText}
             onChange={(e) => setAiText(e.target.value)}
             rows={10}
           />
           <button 
-            className=\"tool-button\"
+            className="tool-button"
             onClick={handleAIDetection}
             disabled={aiLoading || !aiText.trim()}
           >
@@ -318,18 +318,18 @@ function App() {
           </button>
 
           {aiResult && (
-            <div className=\"result-box\">
+            <div className="result-box">
               <h3>Résultat de l'analyse</h3>
               <div className={`result-item ${aiResult.is_ai_generated ? 'danger' : 'success'}`}>
                 <strong>Verdict:</strong> {aiResult.is_ai_generated ? '⚠️ Probablement généré par IA' : '✅ Probablement écrit par un humain'}
               </div>
-              <div className=\"result-item\">
+              <div className="result-item">
                 <strong>Probabilité IA:</strong> {Math.round(aiResult.ai_probability * 100)}%
               </div>
-              <div className=\"result-item\">
+              <div className="result-item">
                 <strong>Confiance:</strong> {aiResult.confidence}
               </div>
-              <div className=\"result-item\">
+              <div className="result-item">
                 <strong>Patterns détectés:</strong> {aiResult.patterns_detected}
               </div>
             </div>
@@ -338,18 +338,18 @@ function App() {
       )}
 
       {activeSection === 'plagiat' && (
-        <div className=\"tool-container\">
+        <div className="tool-container">
           <h2>📋 Vérification de Plagiat</h2>
           <p>Vérifiez si un texte contient du contenu plagié.</p>
           <textarea
-            className=\"tool-textarea\"
-            placeholder=\"Collez le texte à vérifier ici...\"
+            className="tool-textarea"
+            placeholder="Collez le texte à vérifier ici..."
             value={plagiatText}
             onChange={(e) => setPlagiatText(e.target.value)}
             rows={10}
           />
           <button 
-            className=\"tool-button\"
+            className="tool-button"
             onClick={handlePlagiatCheck}
             disabled={plagiatLoading || !plagiatText.trim()}
           >
@@ -357,18 +357,18 @@ function App() {
           </button>
 
           {plagiatResult && (
-            <div className=\"result-box\">
+            <div className="result-box">
               <h3>Résultat de la vérification</h3>
               <div className={`result-item ${plagiatResult.risk_level === 'High' ? 'danger' : 'success'}`}>
                 <strong>Niveau de risque:</strong> {plagiatResult.risk_level}
               </div>
-              <div className=\"result-item\">
+              <div className="result-item">
                 <strong>Score de plagiat:</strong> {Math.round(plagiatResult.plagiarism_score * 100)}%
               </div>
-              <div className=\"result-item\">
+              <div className="result-item">
                 <strong>Phrases suspectes:</strong> {plagiatResult.suspicious_phrases}
               </div>
-              <div className=\"result-item\">
+              <div className="result-item">
                 <strong>Recommandation:</strong> {plagiatResult.recommendation}
               </div>
             </div>
@@ -377,18 +377,18 @@ function App() {
       )}
 
       {activeSection === 'analyse' && (
-        <div className=\"tool-container\">
+        <div className="tool-container">
           <h2>📊 Analyse Complète</h2>
           <p>Analyse complète incluant détection IA, plagiat et statistiques.</p>
           <textarea
-            className=\"tool-textarea\"
-            placeholder=\"Collez le texte à analyser ici...\"
+            className="tool-textarea"
+            placeholder="Collez le texte à analyser ici..."
             value={analyseText}
             onChange={(e) => setAnalyseText(e.target.value)}
             rows={10}
           />
           <button 
-            className=\"tool-button\"
+            className="tool-button"
             onClick={handleAnalyseComplete}
             disabled={analyseLoading || !analyseText.trim()}
           >
@@ -396,12 +396,12 @@ function App() {
           </button>
 
           {analyseResult && (
-            <div className=\"result-box\">
+            <div className="result-box">
               <h3>Résultat de l'analyse complète</h3>
-              <div className=\"result-item\">
+              <div className="result-item">
                 <strong>Langue détectée:</strong> {analyseResult.language}
               </div>
-              <div className=\"result-item\">
+              <div className="result-item">
                 <strong>Nombre de mots:</strong> {analyseResult.word_count}
               </div>
               {analyseResult.ai_detection && (
@@ -417,7 +417,7 @@ function App() {
                 </div>
               )}
               {analyseResult.recommendations && (
-                <div className=\"result-item\">
+                <div className="result-item">
                   <strong>Recommandations:</strong>
                   <ul>
                     {analyseResult.recommendations.map((rec, i) => (
@@ -432,37 +432,37 @@ function App() {
       )}
 
       {activeSection === 'upload' && (
-        <div className=\"tool-container\">
+        <div className="tool-container">
           <h2>📄 Upload de Document</h2>
           <p>Uploadez un document (PDF, Word, Excel, PowerPoint) pour l'analyser.</p>
-          <div className=\"upload-area\">
+          <div className="upload-area">
             <input
-              type=\"file\"
-              id=\"file-upload\"
-              className=\"file-input\"
+              type="file"
+              id="file-upload"
+              className="file-input"
               onChange={handleFileUpload}
-              accept=\".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx\"
+              accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
             />
-            <label htmlFor=\"file-upload\" className=\"file-label\">
+            <label htmlFor="file-upload" className="file-label">
               📁 Choisir un fichier
             </label>
-            {uploadFile && <p className=\"file-name\">Fichier: {uploadFile.name}</p>}
+            {uploadFile && <p className="file-name">Fichier: {uploadFile.name}</p>}
           </div>
 
-          {uploadLoading && <div className=\"loading\">Upload en cours...</div>}
+          {uploadLoading && <div className="loading">Upload en cours...</div>}
 
           {uploadResult && (
-            <div className=\"result-box\">
+            <div className="result-box">
               <h3>Document analysé</h3>
-              <div className=\"result-item\">
+              <div className="result-item">
                 <strong>Nom:</strong> {uploadResult.filename}
               </div>
-              <div className=\"result-item\">
+              <div className="result-item">
                 <strong>Type:</strong> {uploadResult.file_type}
               </div>
-              <div className=\"result-item\">
+              <div className="result-item">
                 <strong>Contenu extrait:</strong>
-                <pre className=\"extracted-content\">{uploadResult.content}</pre>
+                <pre className="extracted-content">{uploadResult.content}</pre>
               </div>
             </div>
           )}
