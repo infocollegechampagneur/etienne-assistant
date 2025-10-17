@@ -437,10 +437,11 @@ async def get_ai_response(message: str, message_type: str) -> dict:
             system_message = base_system_message
         
         # Initialisation du chat Claude - Étienne
-        chat = LlmChat(
-            api_key=os.environ.get('EMERGENT_LLM_KEY'),
-            session_id=f"etienne-{message_type}",
-            system_message=system_message
+       unique_session_id = f\"etienne-{message_type}-{uuid.uuid4().hex[:8]}\"
+       chat = LlmChat(
+           api_key=os.environ.get('EMERGENT_LLM_KEY'),
+           session_id=unique_session_id,
+           system_message=system_message
         ).with_model("anthropic", "claude-4-sonnet-20250514")
         
         # Vérifier si l'utilisateur demande un document
