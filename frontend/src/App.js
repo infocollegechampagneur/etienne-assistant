@@ -47,7 +47,7 @@ function App() {
     try {
       const response = await axios.post(`${BACKEND_URL}/api/chat`, {
         message: input,
-        tab: activeTab
+        message_type: activeTab
       });
 
       const assistantMessage = {
@@ -84,8 +84,9 @@ function App() {
     if (!message) return;
 
     try {
-      const response = await axios.post(`${BACKEND_URL}/api/generate-pdf`, {
+      const response = await axios.post(`${BACKEND_URL}/api/generate-document`, {
         content: message.content,
+        title: "Document Étienne",
         format: format
       }, {
         responseType: 'blob'
@@ -166,12 +167,16 @@ function App() {
     formData.append('file', file);
 
     try {
-      const response = await axios.post(`${BACKEND_URL}/api/upload-document`, formData, {
+      const response = await axios.post(`${BACKEND_URL}/api/upload-file`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       });
-      setUploadResult(response.data);
+      setUploadResult({
+        filename: response.data.filename,
+        file_type: file.type,
+        content: response.data.extracted_text
+      });
     } catch (error) {
       console.error('Erreur upload:', error);
       alert('Erreur lors de l\'upload du document');
@@ -320,8 +325,8 @@ function App() {
           {aiResult && (
             <div className="result-box">
               <h3>Résultat de l'analyse</h3>
-              <div className={`result-item ${aiResult.is_ai_generated ? 'danger' : 'success'}`}>
-                <strong>Verdict:</strong> {aiResult.is_ai_generated ? '⚠️ Probablement généré par IA' : '✅ Probablement écrit par un humain'}
+              <div className={`result-item ${aiResult.is_likely_ai ? 'danger' : 'success'}`}>
+                <strong>Verdict:</strong> {aiResult.is_likely_ai ? '⚠️ Probablement généré par IA' : '✅ Probablement écrit par un humain'}
               </div>
               <div className="result-item">
                 <strong>Probabilité IA:</strong> {Math.round(aiResult.ai_probability * 100)}%
@@ -329,9 +334,11 @@ function App() {
               <div className="result-item">
                 <strong>Confiance:</strong> {aiResult.confidence}
               </div>
-              <div className="result-item">
-                <strong>Patterns détectés:</strong> {aiResult.patterns_detected}
-              </div>
+              {aiResult.detected_patterns && (
+                <div className="result-item">
+                  <strong>Patterns détectés:</strong> {aiResult.detected_patterns.length}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -359,17 +366,14 @@ function App() {
           {plagiatResult && (
             <div className="result-box">
               <h3>Résultat de la vérification</h3>
-              <div className={`result-item ${plagiatResult.risk_level === 'High' ? 'danger' : 'success'}`}>
-                <strong>Niveau de risque:</strong> {plagiatResult.risk_level}
+              <div className={`result-item ${plagiatResult.is_likely_plagiarized ? 'danger' : 'success'}`}>
+                <strong>Verdict:</strong> {plagiatResult.is_likely_plagiarized ? '⚠️ Plagiat détecté' : '✅ Contenu original'}
               </div>
               <div className="result-item">
-                <strong>Score de plagiat:</strong> {Math.round(plagiatResult.plagiarism_score * 100)}%
+                <strong>Score de risque:</strong> {Math.round(plagiatResult.plagiarism_risk * 100)}%
               </div>
               <div className="result-item">
-                <strong>Phrases suspectes:</strong> {plagiatResult.suspicious_phrases}
-              </div>
-              <div className="result-item">
-                <strong>Recommandation:</strong> {plagiatResult.recommendation}
+                <strong>Confiance:</strong> {plagiatResult.confidence}
               </div>
             </div>
           )}
@@ -399,31 +403,21 @@ function App() {
             <div className="result-box">
               <h3>Résultat de l'analyse complète</h3>
               <div className="result-item">
-                <strong>Langue détectée:</strong> {analyseResult.language}
+                <strong>Langue détectée:</strong> {analyseResult.language || 'Non détecté'}
               </div>
               <div className="result-item">
-                <strong>Nombre de mots:</strong> {analyseResult.word_count}
+                <strong>Nombre de mots:</strong> {analyseResult.word_count || 0}
               </div>
               {analyseResult.ai_detection && (
-                <div className={`result-item ${analyseResult.ai_detection.is_ai_generated ? 'danger' : 'success'}`}>
-                  <strong>IA:</strong> {analyseResult.ai_detection.is_ai_generated ? '⚠️ Détecté' : '✅ Non détecté'} 
+                <div className={`result-item ${analyseResult.ai_detection.is_likely_ai ? 'danger' : 'success'}`}>
+                  <strong>IA:</strong> {analyseResult.ai_detection.is_likely_ai ? '⚠️ Détecté' : '✅ Non détecté'} 
                   ({Math.round(analyseResult.ai_detection.ai_probability * 100)}%)
                 </div>
               )}
               {analyseResult.plagiarism_check && (
-                <div className={`result-item ${analyseResult.plagiarism_check.risk_level === 'High' ? 'danger' : 'success'}`}>
-                  <strong>Plagiat:</strong> {analyseResult.plagiarism_check.risk_level} 
-                  ({Math.round(analyseResult.plagiarism_check.plagiarism_score * 100)}%)
-                </div>
-              )}
-              {analyseResult.recommendations && (
-                <div className="result-item">
-                  <strong>Recommandations:</strong>
-                  <ul>
-                    {analyseResult.recommendations.map((rec, i) => (
-                      <li key={i}>{rec}</li>
-                    ))}
-                  </ul>
+                <div className={`result-item ${analyseResult.plagiarism_check.is_likely_plagiarized ? 'danger' : 'success'}`}>
+                  <strong>Plagiat:</strong> {analyseResult.plagiarism_check.is_likely_plagiarized ? '⚠️ Détecté' : '✅ Non détecté'} 
+                  ({Math.round(analyseResult.plagiarism_check.plagiarism_risk * 100)}%)
                 </div>
               )}
             </div>
@@ -441,7 +435,7 @@ function App() {
               id="file-upload"
               className="file-input"
               onChange={handleFileUpload}
-              accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
+              accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.csv"
             />
             <label htmlFor="file-upload" className="file-label">
               📁 Choisir un fichier
