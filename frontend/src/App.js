@@ -29,6 +29,9 @@ function App() {
   const [uploadFile, setUploadFile] = useState(null);
   const [uploadResult, setUploadResult] = useState(null);
   const [uploadLoading, setUploadLoading] = useState(false);
+  const [fileQuestion, setFileQuestion] = useState('');
+  const [fileQuestionLoading, setFileQuestionLoading] = useState(false);
+  const [fileQuestionResult, setFileQuestionResult] = useState(null);
 
   const tabs = ['Je veux', 'Je recherche', 'Sources fiables', 'Activités éducatives'];
 
@@ -113,7 +116,7 @@ function App() {
       const response = await axios.post(`${BACKEND_URL}/api/detect-ai`, {
         text: aiText
       });
-      setAiResult(response.data);
+      setAiResult(response.data.detection_result);
     } catch (error) {
       console.error('Erreur détection IA:', error);
       alert('Erreur lors de la détection IA');
@@ -130,7 +133,7 @@ function App() {
       const response = await axios.post(`${BACKEND_URL}/api/check-plagiarism`, {
         text: plagiatText
       });
-      setPlagiatResult(response.data);
+      setPlagiatResult(response.data.plagiarism_result);
     } catch (error) {
       console.error('Erreur vérification plagiat:', error);
       alert('Erreur lors de la vérification de plagiat');
@@ -162,6 +165,7 @@ function App() {
     
     setUploadFile(file);
     setUploadLoading(true);
+    setFileQuestionResult(null);
 
     const formData = new FormData();
     formData.append('file', file);
@@ -182,6 +186,32 @@ function App() {
       alert('Erreur lors de l\'upload du document');
     } finally {
       setUploadLoading(false);
+    }
+  };
+
+  const handleFileQuestion = async () => {
+    if (!fileQuestion.trim() || !uploadResult) return;
+    
+    setFileQuestionLoading(true);
+
+    try {
+      const response = await axios.post(`${BACKEND_URL}/api/analyze-file`, {
+        question: fileQuestion,
+        extracted_text: uploadResult.content,
+        filename: uploadResult.filename,
+        message_type: "je_veux"
+      });
+      
+      setFileQuestionResult({
+        question: fileQuestion,
+        response: response.data.response
+      });
+      setFileQuestion('');
+    } catch (error) {
+      console.error('Erreur analyse fichier:', error);
+      alert('Erreur lors de l\'analyse du fichier');
+    } finally {
+      setFileQuestionLoading(false);
     }
   };
 
@@ -334,9 +364,9 @@ function App() {
               <div className="result-item">
                 <strong>Confiance:</strong> {aiResult.confidence}
               </div>
-              {aiResult.detected_patterns && (
+              {aiResult.detected_patterns && aiResult.detected_patterns.length > 0 && (
                 <div className="result-item">
-                  <strong>Patterns détectés:</strong> {aiResult.detected_patterns.length}
+                  <strong>Patterns détectés:</strong> {aiResult.detected_patterns.join(', ')}
                 </div>
               )}
             </div>
@@ -366,14 +396,17 @@ function App() {
           {plagiatResult && (
             <div className="result-box">
               <h3>Résultat de la vérification</h3>
-              <div className={`result-item ${plagiatResult.is_likely_plagiarized ? 'danger' : 'success'}`}>
-                <strong>Verdict:</strong> {plagiatResult.is_likely_plagiarized ? '⚠️ Plagiat détecté' : '✅ Contenu original'}
+              <div className={`result-item ${plagiatResult.is_suspicious ? 'danger' : 'success'}`}>
+                <strong>Verdict:</strong> {plagiatResult.is_suspicious ? '⚠️ Plagiat détecté' : '✅ Contenu original'}
               </div>
               <div className="result-item">
                 <strong>Score de risque:</strong> {Math.round(plagiatResult.plagiarism_risk * 100)}%
               </div>
               <div className="result-item">
-                <strong>Confiance:</strong> {plagiatResult.confidence}
+                <strong>Niveau de risque:</strong> {plagiatResult.risk_level}
+              </div>
+              <div className="result-item">
+                <strong>Recommandation:</strong> {plagiatResult.recommendation}
               </div>
             </div>
           )}
@@ -406,7 +439,7 @@ function App() {
                 <strong>Langue détectée:</strong> {analyseResult.language || 'Non détecté'}
               </div>
               <div className="result-item">
-                <strong>Nombre de mots:</strong> {analyseResult.word_count || 0}
+                <strong>Nombre de mots:</strong> {analyseResult.overall_assessment?.word_count || 0}
               </div>
               {analyseResult.ai_detection && (
                 <div className={`result-item ${analyseResult.ai_detection.is_likely_ai ? 'danger' : 'success'}`}>
@@ -415,9 +448,19 @@ function App() {
                 </div>
               )}
               {analyseResult.plagiarism_check && (
-                <div className={`result-item ${analyseResult.plagiarism_check.is_likely_plagiarized ? 'danger' : 'success'}`}>
-                  <strong>Plagiat:</strong> {analyseResult.plagiarism_check.is_likely_plagiarized ? '⚠️ Détecté' : '✅ Non détecté'} 
+                <div className={`result-item ${analyseResult.plagiarism_check.is_suspicious ? 'danger' : 'success'}`}>
+                  <strong>Plagiat:</strong> {analyseResult.plagiarism_check.is_suspicious ? '⚠️ Détecté' : '✅ Non détecté'} 
                   ({Math.round(analyseResult.plagiarism_check.plagiarism_risk * 100)}%)
+                </div>
+              )}
+              {analyseResult.overall_assessment?.recommendations && (
+                <div className="result-item">
+                  <strong>Recommandations:</strong>
+                  <ul>
+                    {analyseResult.overall_assessment.recommendations.map((rec, i) => (
+                      <li key={i}>{rec}</li>
+                    ))}
+                  </ul>
                 </div>
               )}
             </div>
@@ -428,7 +471,8 @@ function App() {
       {activeSection === 'upload' && (
         <div className="tool-container">
           <h2>📄 Upload de Document</h2>
-          <p>Uploadez un document (PDF, Word, Excel, PowerPoint) pour l'analyser.</p>
+          <p>Uploadez un document (PDF, Word, Excel, PowerPoint) pour l'analyser et poser des questions.</p>
+          
           <div className="upload-area">
             <input
               type="file"
@@ -456,8 +500,49 @@ function App() {
               </div>
               <div className="result-item">
                 <strong>Contenu extrait:</strong>
-                <pre className="extracted-content">{uploadResult.content}</pre>
+                <pre className="extracted-content">{uploadResult.content.substring(0, 500)}...</pre>
               </div>
+
+              {/* Section pour poser une question sur le fichier */}
+              <div style={{ marginTop: '30px', padding: '20px', background: '#f0f9ff', borderRadius: '10px' }}>
+                <h4 style={{ color: '#667eea', marginBottom: '15px' }}>💬 Poser une question sur ce document</h4>
+                <div className="input-area">
+                  <input
+                    type="text"
+                    className="chat-input"
+                    placeholder="Ex: Résume ce document, Quels sont les points clés?, etc."
+                    value={fileQuestion}
+                    onChange={(e) => setFileQuestion(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' && !fileQuestionLoading && fileQuestion.trim()) {
+                        handleFileQuestion();
+                      }
+                    }}
+                    disabled={fileQuestionLoading}
+                  />
+                  <button
+                    className="send-button"
+                    onClick={handleFileQuestion}
+                    disabled={fileQuestionLoading || !fileQuestion.trim()}
+                  >
+                    {fileQuestionLoading ? '⏳' : 'Analyser'}
+                  </button>
+                </div>
+              </div>
+
+              {/* Résultat de la question */}
+              {fileQuestionResult && (
+                <div style={{ marginTop: '20px' }}>
+                  <div className="message user" style={{ marginLeft: '0', marginBottom: '15px' }}>
+                    <div className="message-label">Votre question</div>
+                    <div className="message-content">{fileQuestionResult.question}</div>
+                  </div>
+                  <div className="message assistant" style={{ marginRight: '0' }}>
+                    <div className="message-label">Réponse d'Étienne</div>
+                    <div className="message-content">{fileQuestionResult.response}</div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
