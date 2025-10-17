@@ -436,7 +436,7 @@ async def get_ai_response(message: str, message_type: str) -> dict:
         else:
             system_message = base_system_message
         
-         # Initialisation du chat Claude - Étienne
+        # Initialisation du chat Claude - Étienne
         # Utiliser un UUID unique pour éviter les réponses en cache
         unique_session_id = f"etienne-{message_type}-{uuid.uuid4().hex[:8]}"
         chat = LlmChat(
@@ -1147,4 +1147,3 @@ logger = logging.getLogger(__name__)
 @app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
-
