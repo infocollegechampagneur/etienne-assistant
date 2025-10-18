@@ -223,40 +223,74 @@ async def extract_text_from_file(file: UploadFile) -> str:
 
 # Détecteur d'IA et vérificateur de plagiat
 def detect_ai_content(text: str) -> dict:
-    """Détecte si un texte a été généré par IA"""
+    """Détecte si un texte a été généré par IA - VERSION AMÉLIORÉE"""
     try:
-        # Indicateurs d'IA (patterns communs)
+        # Indicateurs d'IA plus complets
         ai_indicators = [
             "as an ai", "i'm an ai", "as a language model", "i don't have personal",
             "i cannot", "i can't provide", "it's important to note", "however",
-            "furthermore", "moreover", "in conclusion", "to summarize"
+            "furthermore", "moreover", "in conclusion", "to summarize",
+            "it is worth noting", "notably", "significantly", "essentially",
+            "ultimately", "consequently", "therefore", "thus", "hence"
         ]
         
         text_lower = text.lower()
         ai_score = 0
         detected_patterns = []
+        words = text_lower.split()
         
-        # Vérification des patterns d'IA
+        # 1. Vérification des patterns d'IA (poids: 30%)
         for indicator in ai_indicators:
             if indicator in text_lower:
-                ai_score += 0.2
+                ai_score += 0.15
                 detected_patterns.append(indicator)
         
-        # Vérification de la structure (phrases très uniformes)
-        sentences = text.split('.')
+        # 2. Analyse de la structure (poids: 25%)
+        sentences = [s.strip() for s in text.split('.') if s.strip()]
         if len(sentences) > 3:
-            avg_length = sum(len(s.strip().split()) for s in sentences if s.strip()) / len([s for s in sentences if s.strip()])
-            if avg_length > 15:  # Phrases longues et complexes
-                ai_score += 0.1
+            # Phrases très uniformes en longueur = suspect
+            lengths = [len(s.split()) for s in sentences]
+            avg_length = sum(lengths) / len(lengths)
+            variance = sum((l - avg_length) ** 2 for l in lengths) / len(lengths)
+            
+            if avg_length > 15 and variance < 20:  # Phrases longues et uniformes
+                ai_score += 0.25
+                detected_patterns.append("uniform sentence structure")
+        
+        # 3. Vocabulaire trop formel/académique (poids: 20%)
+        formal_words = [
+            "utilize", "facilitate", "implement", "demonstrate", "establish",
+            "comprehensive", "substantial", "significant", "fundamental", "optimal"
+        ]
+        formal_count = sum(1 for word in formal_words if word in text_lower)
+        if formal_count > 3 and len(words) < 200:
+            ai_score += 0.20
+            detected_patterns.append(f"{formal_count} formal terms")
+        
+        # 4. Manque d'éléments humains (poids: 15%)
+        human_indicators = [
+            "je pense", "selon moi", "à mon avis", "personnellement",
+            "i think", "in my opinion", "i believe", "i feel"
+        ]
+        has_personal_touch = any(ind in text_lower for ind in human_indicators)
+        if not has_personal_touch and len(words) > 50:
+            ai_score += 0.15
+            detected_patterns.append("no personal opinion")
+        
+        # 5. Perfection grammaticale excessive (poids: 10%)
+        # Texte trop parfait sans fautes = suspect
+        if len(text) > 100 and text.count('!') == 0 and text.count('...') == 0:
+            ai_score += 0.10
+            detected_patterns.append("too perfect grammar")
         
         # Score final
         ai_probability = min(ai_score, 0.99)
         
         return {
             "ai_probability": round(ai_probability, 2),
-            "is_likely_ai": ai_probability > 0.5,
-            "confidence": "High" if ai_probability > 0.7 else "Medium" if ai_probability > 0.3 else "Low",
-            "detected_patterns": detected_patterns[:3]  # Top 3 patterns
+            "is_likely_ai": ai_probability > 0.6,
+            "confidence": "High" if ai_probability > 0.7 else "Medium" if ai_probability > 0.4 else "Low",
+            "detected_patterns": detected_patterns[:5]
         }
         
     except Exception as e:
@@ -268,44 +302,61 @@ def detect_ai_content(text: str) -> dict:
         }
 
 def check_plagiarism(text: str) -> dict:
-    """Vérificateur de plagiat basique"""
+    """Vérificateur de plagiat - VERSION AMÉLIORÉE"""
     try:
-        # Phrases communes qui peuvent indiquer du plagiat
-        common_academic_phrases = [
-            "according to the study", "research shows that", "studies have shown",
-            "it has been proven that", "experts agree that", "the data suggests",
-            "furthermore", "in addition", "however", "therefore", "consequently"
+        # Phrases académiques communes
+        common_phrases = [
+            "according to", "research shows", "studies have shown",
+            "it has been proven", "experts agree", "data suggests",
+            "furthermore", "in addition", "however", "therefore",
+            "selon", "d'après", "les études montrent", "il a été prouvé"
         ]
         
-        # Vérification de phrases trop parfaites/académiques
         text_lower = text.lower()
-        academic_score = 0
+        plagiarism_score = 0
         found_phrases = []
         
-        for phrase in common_academic_phrases:
+        # 1. Phrases académiques copiées (poids: 30%)
+        for phrase in common_phrases:
             if phrase in text_lower:
-                academic_score += 0.1
+                plagiarism_score += 0.12
                 found_phrases.append(phrase)
         
-        # Vérification de la diversité du vocabulaire
+        # 2. Diversité du vocabulaire (poids: 30%)
         words = text_lower.split()
         unique_words = set(words)
-        vocabulary_diversity = len(unique_words) / len(words) if words else 0
+        vocab_diversity = len(unique_words) / len(words) if words else 0
         
-        # Score de risque de plagiat
-        plagiarism_risk = min(academic_score, 0.9)
-        if vocabulary_diversity < 0.6:  # Faible diversité = risque
-            plagiarism_risk += 0.1
+        if vocab_diversity < 0.4:  # Très peu de variété = suspect
+            plagiarism_score += 0.30
+            found_phrases.append(f"low vocabulary diversity ({vocab_diversity:.2f})")
         
-        plagiarism_risk = min(plagiarism_risk, 0.99)
+        # 3. Longueur des phrases (poids: 20%)
+        sentences = [s.strip() for s in text.split('.') if s.strip()]
+        if sentences:
+            long_sentences = sum(1 for s in sentences if len(s.split()) > 25)
+            if long_sentences / len(sentences) > 0.5:
+                plagiarism_score += 0.20
+                found_phrases.append("many long sentences")
+        
+        # 4. Absence de style personnel (poids: 20%)
+        personal_markers = [
+            "je", "mon", "ma", "mes", "i", "my", "me"
+        ]
+        has_personal = any(marker in words for marker in personal_markers)
+        if not has_personal and len(words) > 50:
+            plagiarism_score += 0.20
+            found_phrases.append("no personal style")
+        
+        plagiarism_risk = min(plagiarism_score, 0.99)
         
         return {
             "plagiarism_risk": round(plagiarism_risk, 2),
-            "is_suspicious": plagiarism_risk > 0.4,
-            "vocabulary_diversity": round(vocabulary_diversity, 2),
-            "risk_level": "High" if plagiarism_risk > 0.6 else "Medium" if plagiarism_risk > 0.3 else "Low",
-            "found_phrases": found_phrases[:3],
-            "recommendation": "Vérifiez l'originalité avec des sources académiques" if plagiarism_risk > 0.4 else "Contenu semble original"
+            "is_suspicious": plagiarism_risk > 0.5,
+            "vocabulary_diversity": round(vocab_diversity, 2),
+            "risk_level": "High" if plagiarism_risk > 0.6 else "Medium" if plagiarism_risk > 0.35 else "Low",
+            "found_phrases": found_phrases[:5],
+            "recommendation": "Vérifiez l'originalité avec des sources" if plagiarism_risk > 0.5 else "Contenu semble original"
         }
         
     except Exception as e:
