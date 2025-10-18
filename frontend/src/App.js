@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001';
@@ -9,6 +9,9 @@ function App() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  
+  // État pour le réveil du backend
+  const [backendStatus, setBackendStatus] = useState('checking'); // 'checking', 'awake', 'waking'
   
   // États pour détection IA
   const [aiText, setAiText] = useState('');
@@ -34,6 +37,45 @@ function App() {
   const [fileQuestionResult, setFileQuestionResult] = useState(null);
 
   const tabs = ['Je veux', 'Je recherche', 'Sources fiables', 'Activités éducatives'];
+
+  // Fonction pour réveiller le backend
+  const wakeBackend = async () => {
+    setBackendStatus('waking');
+    let attempts = 0;
+    const maxAttempts = 3;
+
+    const pingBackend = async () => {
+      try {
+        const response = await axios.get(`${BACKEND_URL}/api/`, { timeout: 10000 });
+        if (response.status === 200) {
+          setBackendStatus('awake');
+          return true;
+        }
+      } catch (error) {
+        console.log(`Tentative ${attempts + 1}/${maxAttempts} échouée`);
+        return false;
+      }
+    };
+
+    while (attempts < maxAttempts) {
+      const success = await pingBackend();
+      if (success) {
+        return;
+      }
+      attempts++;
+      if (attempts < maxAttempts) {
+        await new Promise(resolve => setTimeout(resolve, 5000)); // Attendre 5 secondes entre les tentatives
+      }
+    }
+
+    // Si toutes les tentatives échouent
+    setBackendStatus('awake'); // Permettre à l'utilisateur d'essayer quand même
+  };
+
+  // Réveiller le backend au chargement de la page
+  useEffect(() => {
+    wakeBackend();
+  }, []);
 
   const handleSend = async () => {
     if (!input.trim()) return;
@@ -214,6 +256,54 @@ function App() {
       setFileQuestionLoading(false);
     }
   };
+
+  // Afficher l'écran de chargement pendant le réveil du backend
+  if (backendStatus === 'checking' || backendStatus === 'waking') {
+    return (
+      <div className="app-container">
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '100vh',
+          textAlign: 'center',
+          padding: '20px'
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '20px',
+            padding: '60px 40px',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
+            maxWidth: '500px'
+          }}>
+            <h1 style={{ color: '#667eea', fontSize: '3rem', marginBottom: '20px' }}>É Étienne</h1>
+            <div style={{
+              width: '60px',
+              height: '60px',
+              border: '6px solid #f0f0f0',
+              borderTop: '6px solid #667eea',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+              margin: '30px auto'
+            }}></div>
+            <p style={{ color: '#666', fontSize: '1.2rem', marginTop: '20px' }}>
+              {backendStatus === 'checking' ? 'Connexion au serveur...' : 'Réveil du serveur en cours...'}
+            </p>
+            <p style={{ color: '#999', fontSize: '0.9rem', marginTop: '10px' }}>
+              Cela peut prendre 30 à 60 secondes
+            </p>
+          </div>
+          <style>{`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}</style>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="app-container">
