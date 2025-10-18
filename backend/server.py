@@ -55,7 +55,7 @@ class ChatMessage(BaseModel):
     session_id: str
     message: str
     response: str
-    message_type: str  # \"je_veux\", \"je_recherche\", \"sources_fiables\", \"activites\"
+    message_type: str  # "je_veux", "je_recherche", "sources_fiables", "activites"
     trust_score: Optional[float] = None
     sources: Optional[List[str]] = None
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -68,48 +68,48 @@ class ChatRequest(BaseModel):
 class SearchResult(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     query: str
-    sources: List[dict]  # [{\"url\": str, \"title\": str, \"trust_score\": float, \"content_preview\": str}]
+    sources: List[dict]  # [{"url": str, "title": str, "trust_score": float, "content_preview": str}]
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 class DocumentRequest(BaseModel):
     content: str
-    title: str = \"Document Étienne\"
-    format: str = \"pdf\"  # pdf, docx, pptx, xlsx
+    title: str = "Document Étienne"
+    format: str = "pdf"  # pdf, docx, pptx, xlsx
     filename: Optional[str] = None
 
 class TextAnalysisRequest(BaseModel):
     text: str
-    analysis_type: str = \"complete\"  # \"ai_detection\", \"plagiarism\", \"complete\"
+    analysis_type: str = "complete"  # "ai_detection", "plagiarism", "complete"
 
 class FileAnalysisRequest(BaseModel):
     question: str
     extracted_text: str
     filename: str
-    message_type: str = \"je_veux\"
+    message_type: str = "je_veux"
 
 # Système de confiance des sources
 TRUSTED_DOMAINS = {
-    \".gouv.qc.ca\": 0.98,
-    \".gouv.ca\": 0.95,
-    \".edu\": 0.90,
-    \"quebec.ca\": 0.97,
-    \"education.gouv.qc.ca\": 0.98,
-    \"mees.gouv.qc.ca\": 0.98,  # Ministère de l'Éducation du Québec
-    \"banq.qc.ca\": 0.88,  # Bibliothèque nationale du Québec
-    \"uqam.ca\": 0.85,
-    \"umontreal.ca\": 0.85,
-    \"ulaval.ca\": 0.85,
-    \"mcgill.ca\": 0.85,
-    \"cegep\": 0.75,
-    \"universit\": 0.75,
-    \".ca\": 0.70,
-    \".org\": 0.60,
-    \".com\": 0.40,
-    \"wikipedia\": 0.65
+    ".gouv.qc.ca": 0.98,
+    ".gouv.ca": 0.95,
+    ".edu": 0.90,
+    "quebec.ca": 0.97,
+    "education.gouv.qc.ca": 0.98,
+    "mees.gouv.qc.ca": 0.98,  # Ministère de l'Éducation du Québec
+    "banq.qc.ca": 0.88,  # Bibliothèque nationale du Québec
+    "uqam.ca": 0.85,
+    "umontreal.ca": 0.85,
+    "ulaval.ca": 0.85,
+    "mcgill.ca": 0.85,
+    "cegep": 0.75,
+    "universit": 0.75,
+    ".ca": 0.70,
+    ".org": 0.60,
+    ".com": 0.40,
+    "wikipedia": 0.65
 }
 
-def calculate_trust_score(url: str, content: str = \"\") -> float:
-    \"\"\"Calcule le score de confiance d'une source basé sur le domaine et le contenu\"\"\"
+def calculate_trust_score(url: str, content: str = "") -> float:
+    """Calcule le score de confiance d'une source basé sur le domaine et le contenu"""
     base_score = 0.5
     
     # Vérification du domaine
@@ -120,8 +120,8 @@ def calculate_trust_score(url: str, content: str = \"\") -> float:
     # Analyse basique du contenu si fourni
     if content:
         quality_indicators = [
-            \"bibliographie\", \"références\", \"source\", \"étude\", \"recherche\", 
-            \"académique\", \"officiel\", \"ministère\", \"université\", \"peer-review\"
+            "bibliographie", "références", "source", "étude", "recherche", 
+            "académique", "officiel", "ministère", "université", "peer-review"
         ]
         quality_count = sum(1 for indicator in quality_indicators if indicator in content.lower())
         content_bonus = min(0.15, quality_count * 0.03)
@@ -130,15 +130,15 @@ def calculate_trust_score(url: str, content: str = \"\") -> float:
     return round(base_score, 2)
 
 async def extract_text_from_file(file: UploadFile) -> str:
-    \"\"\"Extrait le texte d'un fichier uploadé\"\"\"
+    """Extrait le texte d'un fichier uploadé"""
     try:
         # Créer un fichier temporaire
-        with tempfile.NamedTemporaryFile(delete=False, suffix=f\"_{file.filename}\") as temp_file:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=f"_{file.filename}") as temp_file:
             content = await file.read()
             temp_file.write(content)
             temp_file_path = temp_file.name
         
-        extracted_text = \"\"
+        extracted_text = ""
         file_extension = file.filename.lower().split('.')[-1] if '.' in file.filename else ''
         
         try:
@@ -148,16 +148,16 @@ async def extract_text_from_file(file: UploadFile) -> str:
                     for page in pdf.pages:
                         text = page.extract_text()
                         if text:
-                            extracted_text += text + \"
-\"
+                            extracted_text += text + "
+"
                 
                 # Fallback avec PyPDF2 si pdfplumber échoue
                 if not extracted_text.strip():
                     with open(temp_file_path, 'rb') as pdf_file:
                         pdf_reader = PyPDF2.PdfReader(pdf_file)
                         for page in pdf_reader.pages:
-                            extracted_text += page.extract_text() + \"
-\"
+                            extracted_text += page.extract_text() + "
+"
             
             elif file_extension in ['docx', 'doc']:
                 # Extraction Word
@@ -173,11 +173,11 @@ async def extract_text_from_file(file: UploadFile) -> str:
                 try:
                     df = pd.read_excel(temp_file_path, sheet_name=None)  # Toutes les feuilles
                     for sheet_name, sheet_data in df.items():
-                        extracted_text += f\"
+                        extracted_text += f"
 === Feuille: {sheet_name} ===
-\"
-                        extracted_text += sheet_data.to_string(index=False, na_rep='') + \"
-\"
+"
+                        extracted_text += sheet_data.to_string(index=False, na_rep='') + "
+"
                 except Exception:
                     # Fallback pour anciens formats Excel
                     df = pd.read_excel(temp_file_path, engine='xlrd')
@@ -193,19 +193,19 @@ async def extract_text_from_file(file: UploadFile) -> str:
                 from pptx import Presentation
                 prs = Presentation(temp_file_path)
                 for slide_num, slide in enumerate(prs.slides, 1):
-                    extracted_text += f\"
+                    extracted_text += f"
 === Slide {slide_num} ===
-\"
+"
                     for shape in slide.shapes:
-                        if hasattr(shape, \"text\"):
-                            extracted_text += shape.text + \"
-\"
+                        if hasattr(shape, "text"):
+                            extracted_text += shape.text + "
+"
             
             else:
                 raise HTTPException(
                     status_code=400, 
-                    detail=f\"Format de fichier non supporté: {file_extension}. \"
-                          f\"Formats acceptés: PDF, DOCX, TXT, XLSX, CSV, PPTX\"
+                    detail=f"Format de fichier non supporté: {file_extension}. "
+                          f"Formats acceptés: PDF, DOCX, TXT, XLSX, CSV, PPTX"
                 )
         
         finally:
@@ -216,7 +216,7 @@ async def extract_text_from_file(file: UploadFile) -> str:
         if not extracted_text.strip():
             raise HTTPException(
                 status_code=400,
-                detail=\"Impossible d'extraire le texte de ce fichier. Vérifiez que le fichier n'est pas protégé ou corrompu.\"
+                detail="Impossible d'extraire le texte de ce fichier. Vérifiez que le fichier n'est pas protégé ou corrompu."
             )
         
         return extracted_text.strip()
@@ -224,10 +224,10 @@ async def extract_text_from_file(file: UploadFile) -> str:
     except HTTPException:
         raise
     except Exception as e:
-        logging.error(f\"Erreur extraction texte: {e}\")
+        logging.error(f"Erreur extraction texte: {e}")
         raise HTTPException(
             status_code=500,
-            detail=f\"Erreur lors de l'extraction du texte: {str(e)}\"
+            detail=f"Erreur lors de l'extraction du texte: {str(e)}"
         )
 
 # ============================================================================
@@ -235,52 +235,52 @@ async def extract_text_from_file(file: UploadFile) -> str:
 # ============================================================================
 
 async def detect_ai_content_with_llm(text: str) -> dict:
-    \"\"\"
+    """
     Détection IA avancée utilisant Claude 4 Sonnet pour une analyse experte.
     Cette fonction remplace l'ancienne détection heuristique par une analyse LLM sophistiquée.
-    \"\"\"
+    """
     try:
         # Limiter la longueur du texte pour éviter les coûts excessifs
         max_text_length = 3000
         analyzed_text = text[:max_text_length] if len(text) > max_text_length else text
         
         # Prompt expert pour Claude - détection IA de très haute précision
-        expert_prompt = f\"\"\"Tu es un expert mondial en détection de contenu généré par IA. Analyse le texte suivant et détermine s'il a été généré par une IA (comme GPT, Claude, Gemini, etc.) ou écrit par un humain.
+        expert_prompt = f"""Tu es un expert mondial en détection de contenu généré par IA. Analyse le texte suivant et détermine s'il a été généré par une IA (comme GPT, Claude, Gemini, etc.) ou écrit par un humain.
 
 TEXTE À ANALYSER:
-\\"\\"\\"
+\"\"\"
 {analyzed_text}
-\\"\\"\\"
+\"\"\"
 
 CRITÈRES D'ANALYSE:
 1. **Patterns linguistiques**: Phrases trop uniformes, structures répétitives, transitions artificielles
 2. **Vocabulaire**: Utilisation excessive de mots formels, manque de variations naturelles
 3. **Style**: Ton trop poli, manque d'erreurs naturelles, absence de personnalité
 4. **Contenu**: Informations génériques, manque de détails personnels/spécifiques
-5. **Marqueurs IA**: Phrases comme \"as an AI\", \"it's important to note\", transitions formelles excessives
+5. **Marqueurs IA**: Phrases comme "as an AI", "it's important to note", transitions formelles excessives
 
 RÉPONDS UNIQUEMENT avec un objet JSON valide dans ce format exact:
 {{
-    \"ai_probability\": 0.XX,
-    \"is_likely_ai\": true/false,
-    \"confidence\": \"High/Medium/Low\",
-    \"detected_patterns\": [\"pattern1\", \"pattern2\", \"pattern3\"],
-    \"reasoning\": \"Explication détaillée en 1-2 phrases\"
+    "ai_probability": 0.XX,
+    "is_likely_ai": true/false,
+    "confidence": "High/Medium/Low",
+    "detected_patterns": ["pattern1", "pattern2", "pattern3"],
+    "reasoning": "Explication détaillée en 1-2 phrases"
 }}
 
 RÈGLES STRICTES:
 - ai_probability: entre 0.00 (100% humain) et 0.99 (99% IA)
 - is_likely_ai: true si ai_probability > 0.50
-- confidence: \"High\" si > 0.70, \"Medium\" si 0.30-0.70, \"Low\" si < 0.30
+- confidence: "High" si > 0.70, "Medium" si 0.30-0.70, "Low" si < 0.30
 - detected_patterns: liste de 3 patterns maximum détectés
-- Ne retourne QUE le JSON, aucun autre texte\"\"\"
+- Ne retourne QUE le JSON, aucun autre texte"""
 
         # Initialisation du chat Claude pour détection IA
         chat = LlmChat(
             api_key=os.environ.get('EMERGENT_LLM_KEY'),
-            session_id=f\"ai-detect-{uuid.uuid4().hex[:8]}\",
-            system_message=\"Tu es un expert en détection de contenu généré par IA. Réponds uniquement avec des objets JSON valides.\"
-        ).with_model(\"anthropic\", \"claude-4-sonnet-20250514\")
+            session_id=f"ai-detect-{uuid.uuid4().hex[:8]}",
+            system_message="Tu es un expert en détection de contenu généré par IA. Réponds uniquement avec des objets JSON valides."
+        ).with_model("anthropic", "claude-4-sonnet-20250514")
         
         # Envoi du message et attente de la réponse
         user_message = UserMessage(text=expert_prompt)
@@ -290,54 +290,54 @@ RÈGLES STRICTES:
         try:
             # Nettoyer la réponse (enlever markdown, espaces, etc.)
             cleaned_response = response.strip()
-            if cleaned_response.startswith(\"```json\"):
+            if cleaned_response.startswith("```json"):
                 cleaned_response = cleaned_response[7:]
-            if cleaned_response.startswith(\"```\"):
+            if cleaned_response.startswith("```"):
                 cleaned_response = cleaned_response[3:]
-            if cleaned_response.endswith(\"```\"):
+            if cleaned_response.endswith("```"):
                 cleaned_response = cleaned_response[:-3]
             cleaned_response = cleaned_response.strip()
             
             result = json.loads(cleaned_response)
             
             # Validation et normalisation
-            ai_probability = float(result.get(\"ai_probability\", 0.5))
+            ai_probability = float(result.get("ai_probability", 0.5))
             ai_probability = max(0.0, min(0.99, ai_probability))  # Clamp entre 0 et 0.99
             
             return {
-                \"ai_probability\": round(ai_probability, 2),
-                \"is_likely_ai\": result.get(\"is_likely_ai\", ai_probability > 0.5),
-                \"confidence\": result.get(\"confidence\", \"Medium\"),
-                \"detected_patterns\": result.get(\"detected_patterns\", [])[:3],
-                \"reasoning\": result.get(\"reasoning\", \"Analyse complète effectuée\"),
-                \"method\": \"claude_llm_analysis\"
+                "ai_probability": round(ai_probability, 2),
+                "is_likely_ai": result.get("is_likely_ai", ai_probability > 0.5),
+                "confidence": result.get("confidence", "Medium"),
+                "detected_patterns": result.get("detected_patterns", [])[:3],
+                "reasoning": result.get("reasoning", "Analyse complète effectuée"),
+                "method": "claude_llm_analysis"
             }
             
         except json.JSONDecodeError as e:
-            logging.error(f\"Erreur parsing JSON Claude: {e}. Réponse brute: {response[:200]}\")
+            logging.error(f"Erreur parsing JSON Claude: {e}. Réponse brute: {response[:200]}")
             # Fallback vers heuristique si Claude ne retourne pas du JSON valide
             return detect_ai_content_fallback(text)
     
     except Exception as e:
-        logging.error(f\"Erreur détection IA avec LLM: {e}\")
+        logging.error(f"Erreur détection IA avec LLM: {e}")
         # Fallback vers heuristique en cas d'erreur
         return detect_ai_content_fallback(text)
 
 
 def detect_ai_content_fallback(text: str) -> dict:
-    \"\"\"
+    """
     Détection IA heuristique améliorée - utilisée comme fallback.
     Version améliorée de l'ancienne méthode avec plus de patterns.
-    \"\"\"
+    """
     try:
         # Indicateurs d'IA élargis et plus précis
         ai_indicators = [
-            \"as an ai\", \"i'm an ai\", \"as a language model\", \"i don't have personal\",
-            \"i cannot\", \"i can't provide\", \"it's important to note\", \"however\",
-            \"furthermore\", \"moreover\", \"in conclusion\", \"to summarize\",
-            \"it is worth noting\", \"additionally\", \"consequently\", \"therefore\",
-            \"in summary\", \"to elaborate\", \"it should be noted\", \"notably\",
-            \"en tant qu'ia\", \"je suis une ia\", \"en tant que modèle\", \"il est important de noter\"
+            "as an ai", "i'm an ai", "as a language model", "i don't have personal",
+            "i cannot", "i can't provide", "it's important to note", "however",
+            "furthermore", "moreover", "in conclusion", "to summarize",
+            "it is worth noting", "additionally", "consequently", "therefore",
+            "in summary", "to elaborate", "it should be noted", "notably",
+            "en tant qu'ia", "je suis une ia", "en tant que modèle", "il est important de noter"
         ]
         
         text_lower = text.lower()
@@ -361,37 +361,37 @@ def detect_ai_content_fallback(text: str) -> dict:
                 # Phrases longues et uniformes = IA probable
                 if avg_length > 15 and length_variance < 20:
                     ai_score += 0.15
-                    detected_patterns.append(\"uniform_sentence_structure\")
+                    detected_patterns.append("uniform_sentence_structure")
         
         # Vérification de vocabulaire formel excessif
-        formal_words = [\"furthermore\", \"moreover\", \"consequently\", \"therefore\", \"nevertheless\", 
-                       \"additionally\", \"specifically\", \"particularly\", \"essentially\"]
+        formal_words = ["furthermore", "moreover", "consequently", "therefore", "nevertheless", 
+                       "additionally", "specifically", "particularly", "essentially"]
         formal_count = sum(1 for word in formal_words if word in text_lower)
         if formal_count >= 3:
             ai_score += 0.1
-            detected_patterns.append(\"excessive_formal_vocabulary\")
+            detected_patterns.append("excessive_formal_vocabulary")
         
         # Score final
         ai_probability = min(ai_score, 0.99)
         
         return {
-            \"ai_probability\": round(ai_probability, 2),
-            \"is_likely_ai\": ai_probability > 0.5,
-            \"confidence\": \"High\" if ai_probability > 0.7 else \"Medium\" if ai_probability > 0.3 else \"Low\",
-            \"detected_patterns\": detected_patterns[:3],
-            \"reasoning\": \"Analyse heuristique basée sur des patterns linguistiques\",
-            \"method\": \"heuristic_fallback\"
+            "ai_probability": round(ai_probability, 2),
+            "is_likely_ai": ai_probability > 0.5,
+            "confidence": "High" if ai_probability > 0.7 else "Medium" if ai_probability > 0.3 else "Low",
+            "detected_patterns": detected_patterns[:3],
+            "reasoning": "Analyse heuristique basée sur des patterns linguistiques",
+            "method": "heuristic_fallback"
         }
         
     except Exception as e:
-        logging.error(f\"Erreur fallback détection IA: {e}\")
+        logging.error(f"Erreur fallback détection IA: {e}")
         return {
-            \"ai_probability\": 0.0,
-            \"is_likely_ai\": False,
-            \"confidence\": \"Error\",
-            \"detected_patterns\": [],
-            \"reasoning\": f\"Erreur lors de l'analyse: {str(e)}\",
-            \"method\": \"error\"
+            "ai_probability": 0.0,
+            "is_likely_ai": False,
+            "confidence": "Error",
+            "detected_patterns": [],
+            "reasoning": f"Erreur lors de l'analyse: {str(e)}",
+            "method": "error"
         }
 
 # ============================================================================
@@ -400,13 +400,13 @@ def detect_ai_content_fallback(text: str) -> dict:
 
 
 def check_plagiarism(text: str) -> dict:
-    \"\"\"Vérificateur de plagiat basique\"\"\"
+    """Vérificateur de plagiat basique"""
     try:
         # Phrases communes qui peuvent indiquer du plagiat
         common_academic_phrases = [
-            \"according to the study\", \"research shows that\", \"studies have shown\",
-            \"it has been proven that\", \"experts agree that\", \"the data suggests\",
-            \"furthermore\", \"in addition\", \"however\", \"therefore\", \"consequently\"
+            "according to the study", "research shows that", "studies have shown",
+            "it has been proven that", "experts agree that", "the data suggests",
+            "furthermore", "in addition", "however", "therefore", "consequently"
         ]
         
         # Vérification de phrases trop parfaites/académiques
@@ -432,32 +432,32 @@ def check_plagiarism(text: str) -> dict:
         plagiarism_risk = min(plagiarism_risk, 0.99)
         
         return {
-            \"plagiarism_risk\": round(plagiarism_risk, 2),
-            \"is_suspicious\": plagiarism_risk > 0.4,
-            \"vocabulary_diversity\": round(vocabulary_diversity, 2),
-            \"risk_level\": \"High\" if plagiarism_risk > 0.6 else \"Medium\" if plagiarism_risk > 0.3 else \"Low\",
-            \"found_phrases\": found_phrases[:3],
-            \"recommendation\": \"Vérifiez l'originalité avec des sources académiques\" if plagiarism_risk > 0.4 else \"Contenu semble original\"
+            "plagiarism_risk": round(plagiarism_risk, 2),
+            "is_suspicious": plagiarism_risk > 0.4,
+            "vocabulary_diversity": round(vocabulary_diversity, 2),
+            "risk_level": "High" if plagiarism_risk > 0.6 else "Medium" if plagiarism_risk > 0.3 else "Low",
+            "found_phrases": found_phrases[:3],
+            "recommendation": "Vérifiez l'originalité avec des sources académiques" if plagiarism_risk > 0.4 else "Contenu semble original"
         }
         
     except Exception as e:
         return {
-            \"plagiarism_risk\": 0.0,
-            \"is_suspicious\": False,
-            \"error\": str(e)
+            "plagiarism_risk": 0.0,
+            "is_suspicious": False,
+            "error": str(e)
         }
 
 # Détection de langue pour réponses adaptées
 def detect_language(text: str) -> str:
-    \"\"\"Détecte la langue du message\"\"\"
+    """Détecte la langue du message"""
     english_words = [
-        \"the\", \"and\", \"to\", \"of\", \"a\", \"in\", \"is\", \"it\", \"you\", \"that\", \"he\", \"was\", \"for\", \"on\", \"are\", \"as\", \"with\",
-        \"help\", \"me\", \"can\", \"could\", \"would\", \"should\", \"what\", \"how\", \"where\", \"when\", \"why\", \"grammar\", \"writing\"
+        "the", "and", "to", "of", "a", "in", "is", "it", "you", "that", "he", "was", "for", "on", "are", "as", "with",
+        "help", "me", "can", "could", "would", "should", "what", "how", "where", "when", "why", "grammar", "writing"
     ]
     
     french_words = [
-        \"le\", \"de\", \"et\", \"à\", \"un\", \"il\", \"être\", \"et\", \"en\", \"avoir\", \"que\", \"pour\", \"dans\", \"ce\", \"son\", \"une\", \"sur\",
-        \"aide\", \"moi\", \"peux\", \"pourrais\", \"voudrais\", \"devrais\", \"quoi\", \"comment\", \"où\", \"quand\", \"pourquoi\", \"grammaire\"
+        "le", "de", "et", "à", "un", "il", "être", "et", "en", "avoir", "que", "pour", "dans", "ce", "son", "une", "sur",
+        "aide", "moi", "peux", "pourrais", "voudrais", "devrais", "quoi", "comment", "où", "quand", "pourquoi", "grammaire"
     ]
     
     text_lower = text.lower()
@@ -468,80 +468,80 @@ def detect_language(text: str) -> str:
     
     # Si plus de mots anglais détectés
     if english_count > french_count and english_count > 0:
-        return \"en\"
+        return "en"
     else:
-        return \"fr\"
+        return "fr"
 
 async def get_ai_response(message: str, message_type: str) -> dict:
-    \"\"\"Obtient une réponse d'Étienne selon le type de message\"\"\"
+    """Obtient une réponse d'Étienne selon le type de message"""
     try:
         # Sources crédibles spécialisées pour l'anglais (mises à jour)
         english_sources = {
-            \"grammar\": [
-                \"Oxford English Grammar (oxford.com)\",
-                \"Cambridge Grammar (cambridge.org)\", 
-                \"Grammarly Blog (grammarly.com/blog)\",
-                \"BBC Learning English (bbc.co.uk/learningenglish)\",
-                \"British Council (learnenglish.britishcouncil.org)\",
-                \"Merriam-Webster Dictionary (merriam-webster.com)\"
+            "grammar": [
+                "Oxford English Grammar (oxford.com)",
+                "Cambridge Grammar (cambridge.org)", 
+                "Grammarly Blog (grammarly.com/blog)",
+                "BBC Learning English (bbc.co.uk/learningenglish)",
+                "British Council (learnenglish.britishcouncil.org)",
+                "Merriam-Webster Dictionary (merriam-webster.com)"
             ],
-            \"literature\": [
-                \"Project Gutenberg (gutenberg.org)\",
-                \"Poetry Foundation (poetryfoundation.org)\",
-                \"CliffsNotes Literature Guides (cliffsnotes.com)\",
-                \"SparkNotes Literature (sparknotes.com)\",
-                \"Lecturia Academic Library (lecturia.com)\",
-                \"Norton Anthology Online (wwnorton.com)\",
-                \"Oxford Literature Online (oxfordliteratureonline.com)\"
+            "literature": [
+                "Project Gutenberg (gutenberg.org)",
+                "Poetry Foundation (poetryfoundation.org)",
+                "CliffsNotes Literature Guides (cliffsnotes.com)",
+                "SparkNotes Literature (sparknotes.com)",
+                "Lecturia Academic Library (lecturia.com)",
+                "Norton Anthology Online (wwnorton.com)",
+                "Oxford Literature Online (oxfordliteratureonline.com)"
             ],
-            \"academic\": [
-                \"Purdue OWL Writing Lab (owl.purdue.edu)\",
-                \"Harvard Writing Center (writingcenter.fas.harvard.edu)\",
-                \"MIT Writing Center (cmsw.mit.edu/writing-and-communication-center)\",
-                \"University of Toronto Writing Centre (writing.utoronto.ca)\",
-                \"McGill Writing Centre (mcgill.ca/mwc)\",
-                \"UBC Writing Centre (students.ubc.ca/academic-success/writing-centre)\",
-                \"CliffsNotes Study Guides (cliffsnotes.com/study-guides)\"
+            "academic": [
+                "Purdue OWL Writing Lab (owl.purdue.edu)",
+                "Harvard Writing Center (writingcenter.fas.harvard.edu)",
+                "MIT Writing Center (cmsw.mit.edu/writing-and-communication-center)",
+                "University of Toronto Writing Centre (writing.utoronto.ca)",
+                "McGill Writing Centre (mcgill.ca/mwc)",
+                "UBC Writing Centre (students.ubc.ca/academic-success/writing-centre)",
+                "CliffsNotes Study Guides (cliffsnotes.com/study-guides)"
             ],
-            \"esl\": [
-                \"BBC Learning English (bbc.co.uk/learningenglish)\",
-                \"British Council (learnenglish.britishcouncil.org)\",
-                \"English Central (englishcentral.com)\",
-                \"Perfect English Grammar (perfect-english-grammar.com)\",
-                \"FluentU English (fluentu.com/blog/english)\",
-                \"EnglishClub (englishclub.com)\"
+            "esl": [
+                "BBC Learning English (bbc.co.uk/learningenglish)",
+                "British Council (learnenglish.britishcouncil.org)",
+                "English Central (englishcentral.com)",
+                "Perfect English Grammar (perfect-english-grammar.com)",
+                "FluentU English (fluentu.com/blog/english)",
+                "EnglishClub (englishclub.com)"
             ]
         }
         
         # Configuration du système selon le type - Étienne
         system_messages = {
-            \"je_veux\": \"Tu es Étienne, un assistant pédagogique spécialisé pour les étudiants québécois. Réponds de manière claire et éducative. Pour l'anglais, recommande les meilleures sources mondiales comme Oxford, Cambridge, BBC Learning, Purdue OWL. Utilise un français québécois accessible.\",
-            \"je_recherche\": \"Tu es Étienne, assistant de recherche éducative. Aide les étudiants québécois à explorer des sujets scolaires. Pour l'anglais, oriente vers des sources internationales prestigieuses. Propose des pistes de recherche pédagogiques.\",
-            \"sources_fiables\": \"Tu es Étienne, expert en sources académiques. Guide vers des sources fiables: pour le québécois (.gouv.qc.ca, .edu), pour l'anglais (Oxford, Cambridge, BBC, Purdue OWL, Harvard, MIT). Explique comment évaluer la crédibilité.\",
-            \"activites\": \"Tu es Étienne, créateur d'activités pédagogiques pour étudiants québécois. Propose des exercices engageants adaptés au programme québécois. Pour l'anglais, utilise des ressources internationales de qualité.\"
+            "je_veux": "Tu es Étienne, un assistant pédagogique spécialisé pour les étudiants québécois. Réponds de manière claire et éducative. Pour l'anglais, recommande les meilleures sources mondiales comme Oxford, Cambridge, BBC Learning, Purdue OWL. Utilise un français québécois accessible.",
+            "je_recherche": "Tu es Étienne, assistant de recherche éducative. Aide les étudiants québécois à explorer des sujets scolaires. Pour l'anglais, oriente vers des sources internationales prestigieuses. Propose des pistes de recherche pédagogiques.",
+            "sources_fiables": "Tu es Étienne, expert en sources académiques. Guide vers des sources fiables: pour le québécois (.gouv.qc.ca, .edu), pour l'anglais (Oxford, Cambridge, BBC, Purdue OWL, Harvard, MIT). Explique comment évaluer la crédibilité.",
+            "activites": "Tu es Étienne, créateur d'activités pédagogiques pour étudiants québécois. Propose des exercices engageants adaptés au programme québécois. Pour l'anglais, utilise des ressources internationales de qualité."
         }
         
         # Détection de questions sur l'anglais
         message_lower = message.lower()
         is_english_query = any(word in message_lower for word in [
-            \"english\", \"anglais\", \"grammar\", \"grammaire anglaise\", \"literature\", 
-            \"writing\", \"essay\", \"esl\", \"pronunciation\", \"vocabulary\"
+            "english", "anglais", "grammar", "grammaire anglaise", "literature", 
+            "writing", "essay", "esl", "pronunciation", "vocabulary"
         ])
         
         english_category = None
         sources_to_add = []
         
         if is_english_query:
-            if any(word in message_lower for word in [\"grammar\", \"grammaire\", \"tense\", \"verb\", \"syntax\"]):
-                english_category = \"grammar\"
-            elif any(word in message_lower for word in [\"literature\", \"poem\", \"novel\", \"shakespeare\", \"poetry\"]):
-                english_category = \"literature\"
-            elif any(word in message_lower for word in [\"writing\", \"essay\", \"academic\", \"research\", \"citation\"]):
-                english_category = \"academic\"
-            elif any(word in message_lower for word in [\"esl\", \"learning english\", \"vocabulary\", \"pronunciation\"]):
-                english_category = \"esl\"
+            if any(word in message_lower for word in ["grammar", "grammaire", "tense", "verb", "syntax"]):
+                english_category = "grammar"
+            elif any(word in message_lower for word in ["literature", "poem", "novel", "shakespeare", "poetry"]):
+                english_category = "literature"
+            elif any(word in message_lower for word in ["writing", "essay", "academic", "research", "citation"]):
+                english_category = "academic"
+            elif any(word in message_lower for word in ["esl", "learning english", "vocabulary", "pronunciation"]):
+                english_category = "esl"
             else:
-                english_category = \"grammar\"  # Par défaut
+                english_category = "grammar"  # Par défaut
             
             sources_to_add = english_sources[english_category][:3]  # Top 3 sources
         
@@ -551,79 +551,79 @@ async def get_ai_response(message: str, message_type: str) -> dict:
         # Enrichir le message si c'est une question d'anglais
         enhanced_message = message
         if is_english_query and english_category:
-            enhanced_message = f\"{message}
+            enhanced_message = f"{message}
 
-Note: Je recommande particulièrement ces sources pour l'anglais: {', '.join(sources_to_add[:2])}.\"
+Note: Je recommande particulièrement ces sources pour l'anglais: {', '.join(sources_to_add[:2])}."
         
         # Adapter le système selon la langue détectée
-        base_system_message = system_messages.get(message_type, system_messages[\"je_veux\"])
+        base_system_message = system_messages.get(message_type, system_messages["je_veux"])
         
-        if detected_language == \"en\":
+        if detected_language == "en":
             # Répondre en anglais si l'utilisateur écrit en anglais
             english_system_messages = {
-                \"je_veux\": \"You are Étienne, an educational assistant specialized for Quebec students. Respond clearly and educationally in English. For English topics, recommend the best global sources like Oxford, Cambridge, BBC Learning, Purdue OWL. Be helpful and accessible.\",
-                \"je_recherche\": \"You are Étienne, an educational research assistant. Help Quebec students explore academic topics in English. Guide them to prestigious international sources. Suggest educational research paths.\",
-                \"sources_fiables\": \"You are Étienne, an expert in academic sources. Guide to reliable sources: for Quebec (.gouv.qc.ca, .edu), for English (Oxford, Cambridge, BBC, Purdue OWL, Harvard, MIT). Explain how to evaluate credibility.\",
-                \"activites\": \"You are Étienne, creator of educational activities for Quebec students. Propose engaging exercises in English adapted to Quebec curriculum. For English topics, use quality international resources.\"
+                "je_veux": "You are Étienne, an educational assistant specialized for Quebec students. Respond clearly and educationally in English. For English topics, recommend the best global sources like Oxford, Cambridge, BBC Learning, Purdue OWL. Be helpful and accessible.",
+                "je_recherche": "You are Étienne, an educational research assistant. Help Quebec students explore academic topics in English. Guide them to prestigious international sources. Suggest educational research paths.",
+                "sources_fiables": "You are Étienne, an expert in academic sources. Guide to reliable sources: for Quebec (.gouv.qc.ca, .edu), for English (Oxford, Cambridge, BBC, Purdue OWL, Harvard, MIT). Explain how to evaluate credibility.",
+                "activites": "You are Étienne, creator of educational activities for Quebec students. Propose engaging exercises in English adapted to Quebec curriculum. For English topics, use quality international resources."
             }
-            system_message = english_system_messages.get(message_type, english_system_messages[\"je_veux\"])
+            system_message = english_system_messages.get(message_type, english_system_messages["je_veux"])
         else:
             system_message = base_system_message
         
         # Initialisation du chat Claude - Étienne
         # Utiliser un UUID unique pour éviter les réponses en cache
-        unique_session_id = f\"etienne-{message_type}-{uuid.uuid4().hex[:8]}\"
+        unique_session_id = f"etienne-{message_type}-{uuid.uuid4().hex[:8]}"
         chat = LlmChat(
             api_key=os.environ.get('EMERGENT_LLM_KEY'),
             session_id=unique_session_id,
             system_message=system_message
-        ).with_model(\"anthropic\", \"claude-4-sonnet-20250514\")
+        ).with_model("anthropic", "claude-4-sonnet-20250514")
         
         # Vérifier si l'utilisateur demande un document
         document_keywords = [
-            \"créer\", \"génère\", \"document\", \"fichier\", \"pdf\", \"word\", \"excel\", \"powerpoint\",
-            \"télécharger\", \"exporter\", \"rapport\", \"résumé\", \"fiche\", \"présentation\"
+            "créer", "génère", "document", "fichier", "pdf", "word", "excel", "powerpoint",
+            "télécharger", "exporter", "rapport", "résumé", "fiche", "présentation"
         ]
         
         wants_document = any(keyword in message.lower() for keyword in document_keywords)
         
         # Modifier le prompt si document demandé ou question anglais
         if wants_document:
-            enhanced_message = f\"{enhanced_message}
+            enhanced_message = f"{enhanced_message}
 
-Note: L'utilisateur semble vouloir créer un document. Structurez votre réponse de manière claire avec des titres et des points clés qui pourront être facilement exportés en PDF, Word, PowerPoint ou Excel.\"
+Note: L'utilisateur semble vouloir créer un document. Structurez votre réponse de manière claire avec des titres et des points clés qui pourront être facilement exportés en PDF, Word, PowerPoint ou Excel."
         
         user_message = UserMessage(text=enhanced_message)
             
         response = await chat.send_message(user_message)
         
         # Ajouter sources spécialisées si anglais
-        final_sources = sources_to_add if is_english_query else [\"Sources éducatives québécoises recommandées\"]
-        trust_score = 0.95 if (message_type == \"sources_fiables\" or is_english_query) else None
+        final_sources = sources_to_add if is_english_query else ["Sources éducatives québécoises recommandées"]
+        trust_score = 0.95 if (message_type == "sources_fiables" or is_english_query) else None
         
         return {
-            \"response\": response,
-            \"trust_score\": trust_score,
-            \"sources\": final_sources,
-            \"can_download\": len(response) > 50
+            "response": response,
+            "trust_score": trust_score,
+            "sources": final_sources,
+            "can_download": len(response) > 50
         }
         
     except Exception as e:
-        logging.error(f\"Erreur IA: {e}\")
+        logging.error(f"Erreur IA: {e}")
         return {
-            \"response\": \"Désolé, une erreur s'est produite. Veuillez réessayer.\",
-            \"trust_score\": None,
-            \"sources\": []
+            "response": "Désolé, une erreur s'est produite. Veuillez réessayer.",
+            "trust_score": None,
+            "sources": []
         }
 
 # Routes API
-@api_router.get(\"/\")
+@api_router.get("/")
 async def root():
-    return {\"message\": \"API Étienne - Assistant IA pour les étudiants québécois fourni par le Collège Champagneur\"}
+    return {"message": "API Étienne - Assistant IA pour les étudiants québécois fourni par le Collège Champagneur"}
 
-@api_router.post(\"/chat\", response_model=ChatMessage)
+@api_router.post("/chat", response_model=ChatMessage)
 async def chat_with_ai(request: ChatRequest):
-    \"\"\"Endpoint principal pour le chat avec l'IA\"\"\"
+    """Endpoint principal pour le chat avec l'IA"""
     try:
         # Génération d'un session_id si non fourni
         session_id = request.session_id or str(uuid.uuid4())
@@ -635,10 +635,10 @@ async def chat_with_ai(request: ChatRequest):
         chat_message = ChatMessage(
             session_id=session_id,
             message=request.message,
-            response=ai_result[\"response\"],
+            response=ai_result["response"],
             message_type=request.message_type,
-            trust_score=ai_result[\"trust_score\"],
-            sources=ai_result[\"sources\"]
+            trust_score=ai_result["trust_score"],
+            sources=ai_result["sources"]
         )
         
         # Sauvegarde en base de données
@@ -647,50 +647,50 @@ async def chat_with_ai(request: ChatRequest):
         return chat_message
         
     except Exception as e:
-        logging.error(f\"Erreur chat: {e}\")
-        raise HTTPException(status_code=500, detail=\"Erreur lors du traitement de la demande\")
+        logging.error(f"Erreur chat: {e}")
+        raise HTTPException(status_code=500, detail="Erreur lors du traitement de la demande")
 
-@api_router.get(\"/chat/history/{session_id}\", response_model=List[ChatMessage])
+@api_router.get("/chat/history/{session_id}", response_model=List[ChatMessage])
 async def get_chat_history(session_id: str):
-    \"\"\"Récupère l'historique d'une session de chat\"\"\"
+    """Récupère l'historique d'une session de chat"""
     try:
         messages = await db.chat_messages.find(
-            {\"session_id\": session_id}
-        ).sort(\"timestamp\", 1).to_list(100)
+            {"session_id": session_id}
+        ).sort("timestamp", 1).to_list(100)
         
         return [ChatMessage(**message) for message in messages]
         
     except Exception as e:
-        logging.error(f\"Erreur historique: {e}\")
-        raise HTTPException(status_code=500, detail=\"Erreur lors de la récupération de l'historique\")
+        logging.error(f"Erreur historique: {e}")
+        raise HTTPException(status_code=500, detail="Erreur lors de la récupération de l'historique")
 
-@api_router.post(\"/sources/analyze\")
+@api_router.post("/sources/analyze")
 async def analyze_sources(sources: List[str]):
-    \"\"\"Analyse la fiabilité d'une liste de sources\"\"\"
+    """Analyse la fiabilité d'une liste de sources"""
     try:
         analyzed_sources = []
         
         for source_url in sources:
             trust_score = calculate_trust_score(source_url)
             analyzed_sources.append({
-                \"url\": source_url,
-                \"trust_score\": trust_score,
-                \"trust_level\": \"Très fiable\" if trust_score >= 0.8 else 
-                              \"Fiable\" if trust_score >= 0.6 else 
-                              \"Modérément fiable\" if trust_score >= 0.4 else \"Peu fiable\",
-                \"recommendation\": \"Source recommandée\" if trust_score >= 0.7 else 
-                                \"Vérifier avec d'autres sources\" if trust_score >= 0.5 else 
-                                \"Source non recommandée\"
+                "url": source_url,
+                "trust_score": trust_score,
+                "trust_level": "Très fiable" if trust_score >= 0.8 else 
+                              "Fiable" if trust_score >= 0.6 else 
+                              "Modérément fiable" if trust_score >= 0.4 else "Peu fiable",
+                "recommendation": "Source recommandée" if trust_score >= 0.7 else 
+                                "Vérifier avec d'autres sources" if trust_score >= 0.5 else 
+                                "Source non recommandée"
             })
         
-        return {\"analyzed_sources\": analyzed_sources}
+        return {"analyzed_sources": analyzed_sources}
         
     except Exception as e:
-        logging.error(f\"Erreur analyse sources: {e}\")
-        raise HTTPException(status_code=500, detail=\"Erreur lors de l'analyse des sources\")
+        logging.error(f"Erreur analyse sources: {e}")
+        raise HTTPException(status_code=500, detail="Erreur lors de l'analyse des sources")
 
 def generate_pdf_document(title: str, content: str) -> BytesIO:
-    \"\"\"Génère un document PDF avec belle présentation\"\"\"
+    """Génère un document PDF avec belle présentation"""
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=letter, topMargin=72, bottomMargin=72)
     styles = getSampleStyleSheet()
@@ -732,7 +732,7 @@ def generate_pdf_document(title: str, content: str) -> BytesIO:
     
     # Ligne de séparation
     from reportlab.platypus import HRFlowable
-    story.append(HRFlowable(width=\"100%\", thickness=2, color=HexColor('#f97316')))
+    story.append(HRFlowable(width="100%", thickness=2, color=HexColor('#f97316')))
     story.append(Spacer(1, 20))
     
     # Traitement du contenu
@@ -759,11 +759,11 @@ def generate_pdf_document(title: str, content: str) -> BytesIO:
     
     # Footer élégant
     story.append(Spacer(1, 30))
-    story.append(HRFlowable(width=\"100%\", thickness=1, color=HexColor('#e5e7eb')))
+    story.append(HRFlowable(width="100%", thickness=1, color=HexColor('#e5e7eb')))
     story.append(Spacer(1, 10))
     
     footer_table = Table([
-        ['Généré par Étienne', f\"{datetime.now().strftime('%d/%m/%Y à %H:%M')}\", 'Collège Champagneur'],
+        ['Généré par Étienne', f"{datetime.now().strftime('%d/%m/%Y à %H:%M')}", 'Collège Champagneur'],
     ], colWidths=[150, 200, 150])
     footer_table.setStyle(TableStyle([
         ('FONTSIZE', (0, 0), (-1, -1), 9),
@@ -779,22 +779,22 @@ def generate_pdf_document(title: str, content: str) -> BytesIO:
     return buffer
 
 def generate_docx_document(title: str, content: str) -> BytesIO:
-    \"\"\"Génère un document Word avec belle présentation\"\"\"
+    """Génère un document Word avec belle présentation"""
     doc = Document()
     
     # En-tête avec logo Étienne
     header_para = doc.add_paragraph()
     header_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    header_para.add_run(\"🎓 \")
+    header_para.add_run("🎓 ")
     title_run = header_para.add_run(title)
     title_run.bold = True
     title_run.font.size = DocxPt(20)
     title_run.font.color.rgb = RGBColor(249, 115, 22)  # Orange
-    header_para.add_run(\" 📚\")
+    header_para.add_run(" 📚")
     
     # Ligne de séparation
     separator_para = doc.add_paragraph()
-    separator_run = separator_para.add_run(\"_\" * 80)
+    separator_run = separator_para.add_run("_" * 80)
     separator_run.font.color.rgb = RGBColor(249, 115, 22)
     
     doc.add_paragraph()  # Espace
@@ -821,21 +821,21 @@ def generate_docx_document(title: str, content: str) -> BytesIO:
     # Footer élégant
     doc.add_paragraph()
     footer_separator = doc.add_paragraph()
-    footer_separator_run = footer_separator.add_run(\"─\" * 80)
+    footer_separator_run = footer_separator.add_run("─" * 80)
     footer_separator_run.font.color.rgb = RGBColor(229, 231, 235)  # Gris clair
     
     footer_para = doc.add_paragraph()
     footer_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
     
-    footer_left = footer_para.add_run(\"Généré par Étienne\")
+    footer_left = footer_para.add_run("Généré par Étienne")
     footer_left.font.size = DocxPt(9)
     footer_left.font.color.rgb = RGBColor(107, 114, 128)
     
-    footer_center = footer_para.add_run(f\" • {datetime.now().strftime('%d/%m/%Y à %H:%M')} • \")
+    footer_center = footer_para.add_run(f" • {datetime.now().strftime('%d/%m/%Y à %H:%M')} • ")
     footer_center.font.size = DocxPt(9)
     footer_center.font.color.rgb = RGBColor(107, 114, 128)
     
-    footer_right = footer_para.add_run(\"Collège Champagneur\")
+    footer_right = footer_para.add_run("Collège Champagneur")
     footer_right.font.size = DocxPt(9)
     footer_right.font.color.rgb = RGBColor(107, 114, 128)
     footer_right.italic = True
@@ -846,7 +846,7 @@ def generate_docx_document(title: str, content: str) -> BytesIO:
     return buffer
 
 def generate_pptx_document(title: str, content: str) -> BytesIO:
-    \"\"\"Génère une belle présentation PowerPoint\"\"\"
+    """Génère une belle présentation PowerPoint"""
     prs = Presentation()
     
     from pptx.dml.color import RGBColor
@@ -858,7 +858,7 @@ def generate_pptx_document(title: str, content: str) -> BytesIO:
     
     # Titre principal
     title_shape = title_slide.shapes.title
-    title_shape.text = f\"🎓 {title} 📚\"
+    title_shape.text = f"🎓 {title} 📚"
     title_paragraph = title_shape.text_frame.paragraphs[0]
     title_paragraph.font.size = Pt(44)
     title_paragraph.font.color.rgb = RGBColor(249, 115, 22)  # Orange
@@ -866,11 +866,11 @@ def generate_pptx_document(title: str, content: str) -> BytesIO:
     
     # Sous-titre
     subtitle_shape = title_slide.placeholders[1]
-    subtitle_shape.text = f\"Présenté par Étienne
+    subtitle_shape.text = f"Présenté par Étienne
 Assistant IA Éducatif
 Collège Champagneur
 
-{datetime.now().strftime('%d %B %Y')}\"
+{datetime.now().strftime('%d %B %Y')}"
     subtitle_paragraph = subtitle_shape.text_frame.paragraphs[0]
     subtitle_paragraph.font.size = Pt(18)
     subtitle_paragraph.font.color.rgb = RGBColor(37, 99, 235)  # Bleu
@@ -893,7 +893,7 @@ Collège Champagneur
                 slide = prs.slides.add_slide(prs.slide_layouts[1])  # Content layout
                 
                 # Titre de la slide
-                slide.shapes.title.text = f\"📖 Section {slide_counter - 1}\"
+                slide.shapes.title.text = f"📖 Section {slide_counter - 1}"
                 title_para = slide.shapes.title.text_frame.paragraphs[0]
                 title_para.font.size = Pt(32)
                 title_para.font.color.rgb = RGBColor(37, 99, 235)
@@ -914,13 +914,13 @@ Collège Champagneur
                         (len(item) < 80 and item.isupper()) or
                         (i == 0 and len(item) < 100)):
                         # Style titre
-                        p.text = f\"• {item.replace('#', '').strip()}\"
+                        p.text = f"• {item.replace('#', '').strip()}"
                         p.font.size = Pt(20)
                         p.font.color.rgb = RGBColor(249, 115, 22)  # Orange
                         p.font.bold = True
                     else:
                         # Style normal
-                        p.text = f\"  ◦ {item[:200]}{'...' if len(item) > 200 else ''}\"
+                        p.text = f"  ◦ {item[:200]}{'...' if len(item) > 200 else ''}"
                         p.font.size = Pt(16)
                         p.font.color.rgb = RGBColor(55, 65, 81)  # Gris foncé
                     
@@ -932,7 +932,7 @@ Collège Champagneur
     if current_slide_content:
         slide_counter += 1
         slide = prs.slides.add_slide(prs.slide_layouts[1])
-        slide.shapes.title.text = f\"📖 Section {slide_counter - 1}\"
+        slide.shapes.title.text = f"📖 Section {slide_counter - 1}"
         title_para = slide.shapes.title.text_frame.paragraphs[0]
         title_para.font.size = Pt(32)
         title_para.font.color.rgb = RGBColor(37, 99, 235)
@@ -947,7 +947,7 @@ Collège Champagneur
             else:
                 p = text_frame.add_paragraph()
             
-            p.text = f\"• {item[:150]}{'...' if len(item) > 150 else ''}\"
+            p.text = f"• {item[:150]}{'...' if len(item) > 150 else ''}"
             p.font.size = Pt(16)
             p.font.color.rgb = RGBColor(55, 65, 81)
             p.space_after = Pt(12)
@@ -966,7 +966,7 @@ Collège Champagneur
     
     # Titre de conclusion
     conclusion_title = text_frame.add_paragraph()
-    conclusion_title.text = \"🎉 Merci pour votre attention !\"
+    conclusion_title.text = "🎉 Merci pour votre attention !"
     conclusion_title.font.size = Pt(36)
     conclusion_title.font.color.rgb = RGBColor(249, 115, 22)
     conclusion_title.font.bold = True
@@ -974,12 +974,12 @@ Collège Champagneur
     
     # Texte de conclusion
     conclusion_text = text_frame.add_paragraph()
-    conclusion_text.text = \"
+    conclusion_text.text = "
 
 Étienne - Assistant IA Éducatif
 Collège Champagneur
 
-📚 Continuez à apprendre et à explorer ! 🎓\"
+📚 Continuez à apprendre et à explorer ! 🎓"
     conclusion_text.font.size = Pt(18)
     conclusion_text.font.color.rgb = RGBColor(37, 99, 235)
     conclusion_text.alignment = PP_ALIGN.CENTER
@@ -990,11 +990,11 @@ Collège Champagneur
     return buffer
 
 def generate_xlsx_document(title: str, content: str) -> BytesIO:
-    \"\"\"Génère un fichier Excel\"\"\"
+    """Génère un fichier Excel"""
     buffer = BytesIO()
     wb = Workbook()
     ws = wb.active
-    ws.title = \"Document Étienne\"
+    ws.title = "Document Étienne"
     
     # En-têtes
     ws['A1'] = title
@@ -1007,12 +1007,12 @@ def generate_xlsx_document(title: str, content: str) -> BytesIO:
 
 ') if p.strip()]
     
-    ws['A3'] = \"Points clés :\"
+    ws['A3'] = "Points clés :"
     ws['A3'].font = Font(bold=True)
     
     row = 4
     for i, para in enumerate(paragraphs):
-        ws[f'A{row}'] = f\"{i + 1}.\"
+        ws[f'A{row}'] = f"{i + 1}."
         ws[f'B{row}'] = para
         ws[f'A{row}'].font = Font(bold=True)
         row += 1
@@ -1022,56 +1022,56 @@ def generate_xlsx_document(title: str, content: str) -> BytesIO:
     ws.column_dimensions['B'].width = 80
     
     # Pied de page
-    ws[f'A{row + 2}'] = f\"Généré par Étienne le {datetime.now().strftime('%d/%m/%Y à %H:%M')}\"
+    ws[f'A{row + 2}'] = f"Généré par Étienne le {datetime.now().strftime('%d/%m/%Y à %H:%M')}"
     ws[f'A{row + 2}'].font = Font(italic=True)
     
     wb.save(buffer)
     buffer.seek(0)
     return buffer
 
-@api_router.post(\"/generate-document\")
+@api_router.post("/generate-document")
 async def generate_document(request: DocumentRequest):
-    \"\"\"Génère un document dans le format demandé\"\"\"
+    """Génère un document dans le format demandé"""
     try:
         # Validation du format
         allowed_formats = ['pdf', 'docx', 'pptx', 'xlsx']
         if request.format not in allowed_formats:
-            raise HTTPException(status_code=400, detail=f\"Format non supporté. Formats autorisés: {', '.join(allowed_formats)}\")
+            raise HTTPException(status_code=400, detail=f"Format non supporté. Formats autorisés: {', '.join(allowed_formats)}")
         
         # Génération du nom de fichier
         if not request.filename:
-            timestamp = datetime.now().strftime(\"%Y%m%d_%H%M%S\")
-            filename = f\"{request.title.replace(' ', '_')}_{timestamp}.{request.format}\"
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"{request.title.replace(' ', '_')}_{timestamp}.{request.format}"
         else:
-            filename = request.filename if request.filename.endswith(f\".{request.format}\") else f\"{request.filename}.{request.format}\"
+            filename = request.filename if request.filename.endswith(f".{request.format}") else f"{request.filename}.{request.format}"
         
         # Génération du document selon le format
         if request.format == 'pdf':
             buffer = generate_pdf_document(request.title, request.content)
-            media_type = \"application/pdf\"
+            media_type = "application/pdf"
         elif request.format == 'docx':
             buffer = generate_docx_document(request.title, request.content)
-            media_type = \"application/vnd.openxmlformats-officedocument.wordprocessingml.document\"
+            media_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         elif request.format == 'pptx':
             buffer = generate_pptx_document(request.title, request.content)
-            media_type = \"application/vnd.openxmlformats-officedocument.presentationml.presentation\"
+            media_type = "application/vnd.openxmlformats-officedocument.presentationml.presentation"
         elif request.format == 'xlsx':
             buffer = generate_xlsx_document(request.title, request.content)
-            media_type = \"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet\"
+            media_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
         
         return StreamingResponse(
             BytesIO(buffer.read()),
             media_type=media_type,
-            headers={\"Content-Disposition\": f\"attachment; filename={filename}\"}
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
         )
         
     except Exception as e:
-        logging.error(f\"Erreur génération document: {e}\")
-        raise HTTPException(status_code=500, detail=f\"Erreur lors de la génération du document: {str(e)}\")
+        logging.error(f"Erreur génération document: {e}")
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la génération du document: {str(e)}")
 
-@api_router.post(\"/upload-file\")
+@api_router.post("/upload-file")
 async def upload_and_extract_file(file: UploadFile = File(...)):
-    \"\"\"Upload un fichier et extrait son contenu texte\"\"\"
+    """Upload un fichier et extrait son contenu texte"""
     try:
         # Vérifier la taille du fichier (max 10MB)
         max_size = 10 * 1024 * 1024  # 10MB
@@ -1084,7 +1084,7 @@ async def upload_and_extract_file(file: UploadFile = File(...)):
         if file_size > max_size:
             raise HTTPException(
                 status_code=413,
-                detail=\"Fichier trop volumineux. Taille maximale: 10MB\"
+                detail="Fichier trop volumineux. Taille maximale: 10MB"
             )
         
         # Remettre le pointeur au début pour l'extraction
@@ -1096,33 +1096,33 @@ async def upload_and_extract_file(file: UploadFile = File(...)):
         # Limiter la longueur du texte extrait (pour éviter les tokens excessifs)
         max_text_length = 10000  # ~2500 mots
         if len(extracted_text) > max_text_length:
-            extracted_text = extracted_text[:max_text_length] + \"
+            extracted_text = extracted_text[:max_text_length] + "
 
-[...Texte tronqué pour optimiser l'analyse...]\"
+[...Texte tronqué pour optimiser l'analyse...]"
         
         return {
-            \"filename\": file.filename,
-            \"file_size\": file_size,
-            \"extracted_text\": extracted_text,
-            \"text_length\": len(extracted_text),
-            \"message\": \"Fichier traité avec succès. Vous pouvez maintenant poser votre question.\"
+            "filename": file.filename,
+            "file_size": file_size,
+            "extracted_text": extracted_text,
+            "text_length": len(extracted_text),
+            "message": "Fichier traité avec succès. Vous pouvez maintenant poser votre question."
         }
         
     except HTTPException:
         raise
     except Exception as e:
-        logging.error(f\"Erreur upload fichier: {e}\")
+        logging.error(f"Erreur upload fichier: {e}")
         raise HTTPException(
             status_code=500,
-            detail=f\"Erreur lors du traitement du fichier: {str(e)}\"
+            detail=f"Erreur lors du traitement du fichier: {str(e)}"
         )
 
-@api_router.post(\"/analyze-file\", response_model=ChatMessage)
+@api_router.post("/analyze-file", response_model=ChatMessage)
 async def analyze_file_with_question(request: FileAnalysisRequest):
-    \"\"\"Analyse un fichier avec une question spécifique\"\"\"
+    """Analyse un fichier avec une question spécifique"""
     try:
         # Préparer le prompt avec le contenu du fichier
-        enhanced_message = f\"\"\"
+        enhanced_message = f"""
 CONTEXTE: L'utilisateur a uploadé un document ({request.filename}) et pose la question suivante:
 
 QUESTION: {request.question}
@@ -1135,19 +1135,19 @@ INSTRUCTIONS:
 - Fournissez une réponse précise basée sur le contenu du document
 - Si la réponse n'est pas dans le document, mentionnez-le clairement
 - Structurez votre réponse de manière claire et pédagogique
-\"\"\"
+"""
 
         # Configuration système pour l'analyse de fichiers
-        system_message = \"\"\"Tu es un assistant IA spécialisé dans l'analyse de documents pour les étudiants québécois. 
+        system_message = """Tu es un assistant IA spécialisé dans l'analyse de documents pour les étudiants québécois. 
 Tu dois analyser le contenu fourni et répondre à la question de l'utilisateur de manière précise et pédagogique.
-Adapte ton langage au niveau d'études québécois et utilise un français accessible.\"\"\"
+Adapte ton langage au niveau d'études québécois et utilise un français accessible."""
 
         # Initialisation du chat Claude avec Gemini pour les fichiers
         chat = LlmChat(
             api_key=os.environ.get('EMERGENT_LLM_KEY'),
-            session_id=f\"file-analysis-{uuid.uuid4()}\",
+            session_id=f"file-analysis-{uuid.uuid4()}",
             system_message=system_message
-        ).with_model(\"gemini\", \"gemini-2.0-flash\")  # Gemini est optimal pour l'analyse de documents
+        ).with_model("gemini", "gemini-2.0-flash")  # Gemini est optimal pour l'analyse de documents
         
         # Envoi du message
         user_message = UserMessage(text=enhanced_message)
@@ -1155,8 +1155,8 @@ Adapte ton langage au niveau d'études québécois et utilise un français acces
         
         # Créer l'objet ChatMessage
         chat_message = ChatMessage(
-            session_id=f\"file-{request.filename}-{uuid.uuid4()}\",
-            message=f\"📎 Analyse du fichier '{request.filename}': {request.question}\",
+            session_id=f"file-{request.filename}-{uuid.uuid4()}",
+            message=f"📎 Analyse du fichier '{request.filename}': {request.question}",
             response=response,
             message_type=request.message_type,
             trust_score=0.90,  # Score élevé pour l'analyse de documents
@@ -1169,35 +1169,35 @@ Adapte ton langage au niveau d'études québécois et utilise un français acces
         return chat_message
         
     except Exception as e:
-        logging.error(f\"Erreur analyse fichier: {e}\")
+        logging.error(f"Erreur analyse fichier: {e}")
         raise HTTPException(
             status_code=500,
-            detail=f\"Erreur lors de l'analyse du fichier: {str(e)}\"
+            detail=f"Erreur lors de l'analyse du fichier: {str(e)}"
         )
 
-@api_router.get(\"/subjects\")
+@api_router.get("/subjects")
 async def get_school_subjects():
-    \"\"\"Retourne la liste des matières du système éducatif québécois\"\"\"
+    """Retourne la liste des matières du système éducatif québécois"""
     subjects = {
-        \"langues\": {
-            \"name\": \"Langues\",
-            \"subjects\": [\"Français\", \"Anglais\", \"Espagnol\"]
+        "langues": {
+            "name": "Langues",
+            "subjects": ["Français", "Anglais", "Espagnol"]
         },
-        \"sciences\": {
-            \"name\": \"Sciences & Mathématiques\",
-            \"subjects\": [\"Mathématiques\", \"Sciences et technologies\"]
+        "sciences": {
+            "name": "Sciences & Mathématiques",
+            "subjects": ["Mathématiques", "Sciences et technologies"]
         },
-        \"sciences_humaines\": {
-            \"name\": \"Sciences Humaines\",
-            \"subjects\": [\"Histoire\", \"Géographie\", \"Culture et société québécoise\", \"Monde contemporain\"]
+        "sciences_humaines": {
+            "name": "Sciences Humaines",
+            "subjects": ["Histoire", "Géographie", "Culture et société québécoise", "Monde contemporain"]
         },
-        \"formation_generale\": {
-            \"name\": \"Formation Générale\",
-            \"subjects\": [\"Éducation financière\", \"Méthodologie\", \"Éducation physique\"]
+        "formation_generale": {
+            "name": "Formation Générale",
+            "subjects": ["Éducation financière", "Méthodologie", "Éducation physique"]
         },
-        \"arts\": {
-            \"name\": \"Arts\",
-            \"subjects\": [\"Art dramatique\", \"Arts plastiques\", \"Danse\", \"Musique\"]
+        "arts": {
+            "name": "Arts",
+            "subjects": ["Art dramatique", "Arts plastiques", "Danse", "Musique"]
         }
     }
     return subjects
@@ -1209,39 +1209,39 @@ class AIDetectionRequest(BaseModel):
 class PlagiarismCheckRequest(BaseModel):
     text: str
 
-@api_router.post(\"/detect-ai\")
+@api_router.post("/detect-ai")
 async def detect_ai_endpoint(request: AIDetectionRequest):
-    \"\"\"Détecte si un texte a été généré par IA - VERSION AMÉLIORÉE AVEC CLAUDE\"\"\"
+    """Détecte si un texte a été généré par IA - VERSION AMÉLIORÉE AVEC CLAUDE"""
     try:
         # Utiliser la nouvelle détection LLM
         result = await detect_ai_content_with_llm(request.text)
         
         return {
-            \"success\": True,
-            \"detection_result\": result,
-            \"message\": f\"Analyse terminée. Probabilité IA: {result['ai_probability']*100}%\"
+            "success": True,
+            "detection_result": result,
+            "message": f"Analyse terminée. Probabilité IA: {result['ai_probability']*100}%"
         }
     except Exception as e:
-        logging.error(f\"Erreur détection IA: {e}\")
-        raise HTTPException(status_code=500, detail=f\"Erreur lors de la détection IA: {str(e)}\")
+        logging.error(f"Erreur détection IA: {e}")
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la détection IA: {str(e)}")
 
-@api_router.post(\"/check-plagiarism\")
+@api_router.post("/check-plagiarism")
 async def check_plagiarism_endpoint(request: PlagiarismCheckRequest):
-    \"\"\"Vérifie le risque de plagiat dans un texte\"\"\"
+    """Vérifie le risque de plagiat dans un texte"""
     try:
         result = check_plagiarism(request.text)
         return {
-            \"success\": True,
-            \"plagiarism_result\": result,
-            \"message\": f\"Vérification terminée. Risque de plagiat: {result['risk_level']}\"
+            "success": True,
+            "plagiarism_result": result,
+            "message": f"Vérification terminée. Risque de plagiat: {result['risk_level']}"
         }
     except Exception as e:
-        logging.error(f\"Erreur vérification plagiat: {e}\")
-        raise HTTPException(status_code=500, detail=f\"Erreur lors de la vérification de plagiat: {str(e)}\")
+        logging.error(f"Erreur vérification plagiat: {e}")
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la vérification de plagiat: {str(e)}")
 
-@api_router.post(\"/analyze-text\")
+@api_router.post("/analyze-text")
 async def analyze_text_complete(request: AIDetectionRequest):
-    \"\"\"Analyse complète d'un texte (IA + Plagiat + Langue) - VERSION AMÉLIORÉE\"\"\"
+    """Analyse complète d'un texte (IA + Plagiat + Langue) - VERSION AMÉLIORÉE"""
     try:
         # Détection de langue
         detected_language = detect_language(request.text)
@@ -1253,36 +1253,36 @@ async def analyze_text_complete(request: AIDetectionRequest):
         plagiarism_result = check_plagiarism(request.text)
         
         # Analyse combinée
-        overall_risk = \"Low\"
-        if ai_result[\"is_likely_ai\"] or plagiarism_result[\"is_suspicious\"]:
-            overall_risk = \"High\"
-        elif ai_result[\"ai_probability\"] > 0.3 or plagiarism_result[\"plagiarism_risk\"] > 0.3:
-            overall_risk = \"Medium\"
+        overall_risk = "Low"
+        if ai_result["is_likely_ai"] or plagiarism_result["is_suspicious"]:
+            overall_risk = "High"
+        elif ai_result["ai_probability"] > 0.3 or plagiarism_result["plagiarism_risk"] > 0.3:
+            overall_risk = "Medium"
         
         recommendations = []
-        if ai_result[\"is_likely_ai\"]:
-            recommendations.append(f\"Ce texte semble généré par IA ({ai_result['ai_probability']*100:.0f}% de probabilité). Vérifiez l'originalité.\")
-        if plagiarism_result[\"is_suspicious\"]:
-            recommendations.append(\"Risque de plagiat détecté. Vérifiez les sources.\")
+        if ai_result["is_likely_ai"]:
+            recommendations.append(f"Ce texte semble généré par IA ({ai_result['ai_probability']*100:.0f}% de probabilité). Vérifiez l'originalité.")
+        if plagiarism_result["is_suspicious"]:
+            recommendations.append("Risque de plagiat détecté. Vérifiez les sources.")
         if not recommendations:
-            recommendations.append(\"Le texte semble original et authentique.\")
+            recommendations.append("Le texte semble original et authentique.")
         
         return {
-            \"success\": True,
-            \"language\": detected_language,
-            \"ai_detection\": ai_result,
-            \"plagiarism_check\": plagiarism_result,
-            \"overall_assessment\": {
-                \"risk_level\": overall_risk,
-                \"recommendations\": recommendations,
-                \"text_length\": len(request.text),
-                \"word_count\": len(request.text.split())
+            "success": True,
+            "language": detected_language,
+            "ai_detection": ai_result,
+            "plagiarism_check": plagiarism_result,
+            "overall_assessment": {
+                "risk_level": overall_risk,
+                "recommendations": recommendations,
+                "text_length": len(request.text),
+                "word_count": len(request.text.split())
             }
         }
         
     except Exception as e:
-        logging.error(f\"Erreur analyse complète: {e}\")
-        raise HTTPException(status_code=500, detail=f\"Erreur lors de l'analyse complète: {str(e)}\")
+        logging.error(f"Erreur analyse complète: {e}")
+        raise HTTPException(status_code=500, detail=f"Erreur lors de l'analyse complète: {str(e)}")
 
 # Include the router in the main app
 app.include_router(api_router)
@@ -1291,8 +1291,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
     allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
-    allow_methods=[\"*\"],
-    allow_headers=[\"*\"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Configure logging
@@ -1302,6 +1302,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-@app.on_event(\"shutdown\")
+@app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
