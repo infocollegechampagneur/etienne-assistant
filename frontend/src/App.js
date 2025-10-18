@@ -11,17 +11,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   
   // État pour le réveil du backend
-  const [backendStatus, setBackendStatus] = useState('checking'); // 'checking', 'awake', 'waking'
-  
-  // États pour détection IA
-  const [aiText, setAiText] = useState('');
-  const [aiResult, setAiResult] = useState(null);
-  const [aiLoading, setAiLoading] = useState(false);
-  
-  // États pour plagiat
-  const [plagiatText, setPlagiatText] = useState('');
-  const [plagiatResult, setPlagiatResult] = useState(null);
-  const [plagiatLoading, setPlagiatLoading] = useState(false);
+  const [backendStatus, setBackendStatus] = useState('checking');
   
   // États pour analyse complète
   const [analyseText, setAnalyseText] = useState('');
@@ -64,15 +54,13 @@ function App() {
       }
       attempts++;
       if (attempts < maxAttempts) {
-        await new Promise(resolve => setTimeout(resolve, 5000)); // Attendre 5 secondes entre les tentatives
+        await new Promise(resolve => setTimeout(resolve, 5000));
       }
     }
 
-    // Si toutes les tentatives échouent
-    setBackendStatus('awake'); // Permettre à l'utilisateur d'essayer quand même
+    setBackendStatus('awake');
   };
 
-  // Réveiller le backend au chargement de la page
   useEffect(() => {
     wakeBackend();
   }, []);
@@ -150,40 +138,6 @@ function App() {
     }
   };
 
-  const handleAIDetection = async () => {
-    if (!aiText.trim()) return;
-    setAiLoading(true);
-
-    try {
-      const response = await axios.post(`${BACKEND_URL}/api/detect-ai`, {
-        text: aiText
-      });
-      setAiResult(response.data.detection_result);
-    } catch (error) {
-      console.error('Erreur détection IA:', error);
-      alert('Erreur lors de la détection IA');
-    } finally {
-      setAiLoading(false);
-    }
-  };
-
-  const handlePlagiatCheck = async () => {
-    if (!plagiatText.trim()) return;
-    setPlagiatLoading(true);
-
-    try {
-      const response = await axios.post(`${BACKEND_URL}/api/check-plagiarism`, {
-        text: plagiatText
-      });
-      setPlagiatResult(response.data.plagiarism_result);
-    } catch (error) {
-      console.error('Erreur vérification plagiat:', error);
-      alert('Erreur lors de la vérification de plagiat');
-    } finally {
-      setPlagiatLoading(false);
-    }
-  };
-
   const handleAnalyseComplete = async () => {
     if (!analyseText.trim()) return;
     setAnalyseLoading(true);
@@ -257,7 +211,6 @@ function App() {
     }
   };
 
-  // Afficher l'écran de chargement pendant le réveil du backend
   if (backendStatus === 'checking' || backendStatus === 'waking') {
     return (
       <div className="app-container">
@@ -318,18 +271,6 @@ function App() {
           onClick={() => setActiveSection('chat')}
         >
           💬 Chat
-        </button>
-        <button 
-          className={`nav-btn ${activeSection === 'ai-detection' ? 'active' : ''}`}
-          onClick={() => setActiveSection('ai-detection')}
-        >
-          🤖 Détection IA
-        </button>
-        <button 
-          className={`nav-btn ${activeSection === 'plagiat' ? 'active' : ''}`}
-          onClick={() => setActiveSection('plagiat')}
-        >
-          📋 Plagiat
         </button>
         <button 
           className={`nav-btn ${activeSection === 'analyse' ? 'active' : ''}`}
@@ -423,90 +364,10 @@ function App() {
         </div>
       )}
 
-      {activeSection === 'ai-detection' && (
-        <div className="tool-container">
-          <h2>🤖 Détection de Contenu IA</h2>
-          <p>Analysez si un texte a été généré par une intelligence artificielle.</p>
-          <textarea
-            className="tool-textarea"
-            placeholder="Collez le texte à analyser ici..."
-            value={aiText}
-            onChange={(e) => setAiText(e.target.value)}
-            rows={10}
-          />
-          <button 
-            className="tool-button"
-            onClick={handleAIDetection}
-            disabled={aiLoading || !aiText.trim()}
-          >
-            {aiLoading ? '🔍 Analyse...' : '🔍 Analyser'}
-          </button>
-
-          {aiResult && (
-            <div className="result-box">
-              <h3>Résultat de l'analyse</h3>
-              <div className={`result-item ${aiResult.is_likely_ai ? 'danger' : 'success'}`}>
-                <strong>Verdict:</strong> {aiResult.is_likely_ai ? '⚠️ Probablement généré par IA' : '✅ Probablement écrit par un humain'}
-              </div>
-              <div className="result-item">
-                <strong>Probabilité IA:</strong> {Math.round(aiResult.ai_probability * 100)}%
-              </div>
-              <div className="result-item">
-                <strong>Confiance:</strong> {aiResult.confidence}
-              </div>
-              {aiResult.detected_patterns && aiResult.detected_patterns.length > 0 && (
-                <div className="result-item">
-                  <strong>Patterns détectés:</strong> {aiResult.detected_patterns.join(', ')}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      )}
-
-      {activeSection === 'plagiat' && (
-        <div className="tool-container">
-          <h2>📋 Vérification de Plagiat</h2>
-          <p>Vérifiez si un texte contient du contenu plagié.</p>
-          <textarea
-            className="tool-textarea"
-            placeholder="Collez le texte à vérifier ici..."
-            value={plagiatText}
-            onChange={(e) => setPlagiatText(e.target.value)}
-            rows={10}
-          />
-          <button 
-            className="tool-button"
-            onClick={handlePlagiatCheck}
-            disabled={plagiatLoading || !plagiatText.trim()}
-          >
-            {plagiatLoading ? '🔍 Vérification...' : '🔍 Vérifier'}
-          </button>
-
-          {plagiatResult && (
-            <div className="result-box">
-              <h3>Résultat de la vérification</h3>
-              <div className={`result-item ${plagiatResult.is_suspicious ? 'danger' : 'success'}`}>
-                <strong>Verdict:</strong> {plagiatResult.is_suspicious ? '⚠️ Plagiat détecté' : '✅ Contenu original'}
-              </div>
-              <div className="result-item">
-                <strong>Score de risque:</strong> {Math.round(plagiatResult.plagiarism_risk * 100)}%
-              </div>
-              <div className="result-item">
-                <strong>Niveau de risque:</strong> {plagiatResult.risk_level}
-              </div>
-              <div className="result-item">
-                <strong>Recommandation:</strong> {plagiatResult.recommendation}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
       {activeSection === 'analyse' && (
         <div className="tool-container">
           <h2>📊 Analyse Complète</h2>
-          <p>Analyse complète incluant détection IA, plagiat et statistiques.</p>
+          <p>Analyse complète incluant détection IA, plagiat et statistiques du texte.</p>
           <textarea
             className="tool-textarea"
             placeholder="Collez le texte à analyser ici..."
@@ -525,27 +386,54 @@ function App() {
           {analyseResult && (
             <div className="result-box">
               <h3>Résultat de l'analyse complète</h3>
+              
               <div className="result-item">
-                <strong>Langue détectée:</strong> {analyseResult.language || 'Non détecté'}
+                <strong>📝 Statistiques:</strong>
+              </div>
+              <div className="result-item">
+                <strong>Langue:</strong> {analyseResult.language === 'fr' ? 'Français' : 'Anglais'}
               </div>
               <div className="result-item">
                 <strong>Nombre de mots:</strong> {analyseResult.overall_assessment?.word_count || 0}
               </div>
+
               {analyseResult.ai_detection && (
-                <div className={`result-item ${analyseResult.ai_detection.is_likely_ai ? 'danger' : 'success'}`}>
-                  <strong>IA:</strong> {analyseResult.ai_detection.is_likely_ai ? '⚠️ Détecté' : '✅ Non détecté'} 
-                  ({Math.round(analyseResult.ai_detection.ai_probability * 100)}%)
-                </div>
+                <>
+                  <div className="result-item" style={{ marginTop: '20px' }}>
+                    <strong>🤖 Détection IA:</strong>
+                  </div>
+                  <div className={`result-item ${analyseResult.ai_detection.is_likely_ai ? 'danger' : 'success'}`}>
+                    <strong>Verdict:</strong> {analyseResult.ai_detection.is_likely_ai ? '⚠️ Probablement généré par IA' : '✅ Probablement écrit par un humain'}
+                  </div>
+                  <div className="result-item">
+                    <strong>Probabilité IA:</strong> {Math.round(analyseResult.ai_detection.ai_probability * 100)}%
+                  </div>
+                  <div className="result-item">
+                    <strong>Confiance:</strong> {analyseResult.ai_detection.confidence}
+                  </div>
+                </>
               )}
+
               {analyseResult.plagiarism_check && (
-                <div className={`result-item ${analyseResult.plagiarism_check.is_suspicious ? 'danger' : 'success'}`}>
-                  <strong>Plagiat:</strong> {analyseResult.plagiarism_check.is_suspicious ? '⚠️ Détecté' : '✅ Non détecté'} 
-                  ({Math.round(analyseResult.plagiarism_check.plagiarism_risk * 100)}%)
-                </div>
+                <>
+                  <div className="result-item" style={{ marginTop: '20px' }}>
+                    <strong>📋 Détection Plagiat:</strong>
+                  </div>
+                  <div className={`result-item ${analyseResult.plagiarism_check.is_suspicious ? 'danger' : 'success'}`}>
+                    <strong>Verdict:</strong> {analyseResult.plagiarism_check.is_suspicious ? '⚠️ Risque de plagiat' : '✅ Contenu original'}
+                  </div>
+                  <div className="result-item">
+                    <strong>Score de risque:</strong> {Math.round(analyseResult.plagiarism_check.plagiarism_risk * 100)}%
+                  </div>
+                  <div className="result-item">
+                    <strong>Niveau:</strong> {analyseResult.plagiarism_check.risk_level}
+                  </div>
+                </>
               )}
+
               {analyseResult.overall_assessment?.recommendations && (
-                <div className="result-item">
-                  <strong>Recommandations:</strong>
+                <div className="result-item" style={{ marginTop: '20px' }}>
+                  <strong>💡 Recommandations:</strong>
                   <ul>
                     {analyseResult.overall_assessment.recommendations.map((rec, i) => (
                       <li key={i}>{rec}</li>
@@ -593,7 +481,6 @@ function App() {
                 <pre className="extracted-content">{uploadResult.content.substring(0, 500)}...</pre>
               </div>
 
-              {/* Section pour poser une question sur le fichier */}
               <div style={{ marginTop: '30px', padding: '20px', background: '#f0f9ff', borderRadius: '10px' }}>
                 <h4 style={{ color: '#667eea', marginBottom: '15px' }}>💬 Poser une question sur ce document</h4>
                 <div className="input-area">
@@ -620,7 +507,6 @@ function App() {
                 </div>
               </div>
 
-              {/* Résultat de la question */}
               {fileQuestionResult && (
                 <div style={{ marginTop: '20px' }}>
                   <div className="message user" style={{ marginLeft: '0', marginBottom: '15px' }}>
