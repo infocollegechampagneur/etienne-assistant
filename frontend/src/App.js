@@ -434,7 +434,7 @@ ${ai_detection.detected_patterns?.length > 0 ? `**Patterns détectés:** ${ai_de
             <div className="flex items-center space-x-3">
             <img src="/logo.png" 
             alt="Logo College Champagneur"
-            className="w-14 h-12 rounded-full object-cover"
+            className="w-16 h-12 object-cover"
               />
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Étienne</h1>
