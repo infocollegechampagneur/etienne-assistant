@@ -866,7 +866,7 @@ ${ai_detection.detected_patterns?.length > 0 ? `**Patterns détectés:** ${ai_de
         
         <div className="mt-12 text-center">
           <img 
-            src="/Logo.png" 
+            src="/logo.png" 
             alt="FooterLogo" 
             className="w-full max-w-2xl mx-auto rounded-xl shadow-lg object-cover h-64"
           />
