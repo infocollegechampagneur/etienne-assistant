@@ -434,7 +434,7 @@ ${ai_detection.detected_patterns?.length > 0 ? `**Patterns détectés:** ${ai_de
             <div className="flex items-center space-x-3">
             <img src="/logo.png" 
             alt="Logo College Champagneur"
-            className="w-16 h-12 object-cover"
+            className="nax-w-16 h-12 object-cover"
               />
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Étienne</h1>
@@ -868,7 +868,7 @@ ${ai_detection.detected_patterns?.length > 0 ? `**Patterns détectés:** ${ai_de
           <img 
             src="/logo.png" 
             alt="FooterLogo" 
-            className="w-full max-w-2xl mx-auto rounded-xl shadow-lg object-cover h-64"
+            className="w-full max-w-3xl mx-auto rounded-xl shadow-lg object-cover h-64"
           />
           <p className="text-gray-600 mt-4 italic">Un environnement d'apprentissage moderne et collaboratif</p>
         </div>
