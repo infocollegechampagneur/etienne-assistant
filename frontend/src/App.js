@@ -438,7 +438,7 @@ ${ai_detection.detected_patterns?.length > 0 ? `**Patterns détectés:** ${ai_de
               />
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Étienne</h1>
-                <p className="text-sm text-gray-600">Assistant IA pour les étudiants québécois fourni par le Collège Champagneur</p>
+                <p className="text-sm text-gray-600">Assistant IA pour les enseignants du Québec fourni par le Collège Champagneur</p>
               </div>
             </div>
             <div className="flex items-center space-x-2">
