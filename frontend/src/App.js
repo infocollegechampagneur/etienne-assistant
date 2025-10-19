@@ -551,8 +551,8 @@ ${ai_detection.detected_patterns?.length > 0 ? `**Patterns détectés:** ${ai_de
                       <div className="text-center py-8">
                         <div className="mb-4">
                           <img 
-                            src="https://images.unsplash.com/photo-1757143137415-0790a01bfa6d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1ODF8MHwxfHNlYXJjaHwzfHwlQzMlQTl0dWRpYW50JTIwbHljJUMzJUE5ZXxlbnwwfHx8fDE3NTk0MTA1OTF8MA&ixlib=rb-4.1.0&q=85" 
-                            alt="Étudiante souriante" 
+                            src="/EtienneChat.png" 
+                            alt="ÉtienneImageChat" 
                             className="w-20 h-20 rounded-full mx-auto object-cover"
                           />
                         </div>
