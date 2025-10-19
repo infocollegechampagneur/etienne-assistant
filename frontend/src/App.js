@@ -553,7 +553,7 @@ ${ai_detection.detected_patterns?.length > 0 ? `**Patterns détectés:** ${ai_de
                           <img 
                             src="/EtienneChat.png" 
                             alt="ÉtienneImageChat" 
-                            className="w-20 h-20 rounded-full mx-auto object-cover"
+                            className="w-20 h-21 rounded-full mx-auto object-cover"
                           />
                         </div>
                         <p className="text-gray-500 mb-4">Commencez une conversation avec votre assistant IA</p>
