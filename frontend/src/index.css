@@ -1,479 +1,86 @@
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+        "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+        "Helvetica Neue", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-.app-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
+        monospace;
 }
 
-.header {
-  background: white;
-  border-radius: 15px;
-  padding: 30px;
-  margin-bottom: 20px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-  text-align: center;
+
+
+@layer base {
+  :root {
+        --background: 0 0% 100%;
+        --foreground: 0 0% 3.9%;
+        --card: 0 0% 100%;
+        --card-foreground: 0 0% 3.9%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 0 0% 3.9%;
+        --primary: 0 0% 9%;
+        --primary-foreground: 0 0% 98%;
+        --secondary: 0 0% 96.1%;
+        --secondary-foreground: 0 0% 9%;
+        --muted: 0 0% 96.1%;
+        --muted-foreground: 0 0% 45.1%;
+        --accent: 0 0% 96.1%;
+        --accent-foreground: 0 0% 9%;
+        --destructive: 0 84.2% 60.2%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 0 0% 89.8%;
+        --input: 0 0% 89.8%;
+        --ring: 0 0% 3.9%;
+        --chart-1: 12 76% 61%;
+        --chart-2: 173 58% 39%;
+        --chart-3: 197 37% 24%;
+        --chart-4: 43 74% 66%;
+        --chart-5: 27 87% 67%;
+        --radius: 0.5rem;
+    }
+  .dark {
+        --background: 0 0% 3.9%;
+        --foreground: 0 0% 98%;
+        --card: 0 0% 3.9%;
+        --card-foreground: 0 0% 98%;
+        --popover: 0 0% 3.9%;
+        --popover-foreground: 0 0% 98%;
+        --primary: 0 0% 98%;
+        --primary-foreground: 0 0% 9%;
+        --secondary: 0 0% 14.9%;
+        --secondary-foreground: 0 0% 98%;
+        --muted: 0 0% 14.9%;
+        --muted-foreground: 0 0% 63.9%;
+        --accent: 0 0% 14.9%;
+        --accent-foreground: 0 0% 98%;
+        --destructive: 0 62.8% 30.6%;
+        --destructive-foreground: 0 0% 98%;
+        --border: 0 0% 14.9%;
+        --input: 0 0% 14.9%;
+        --ring: 0 0% 83.1%;
+        --chart-1: 220 70% 50%;
+        --chart-2: 160 60% 45%;
+        --chart-3: 30 80% 55%;
+        --chart-4: 280 65% 60%;
+        --chart-5: 340 75% 55%;
+    }
 }
 
-.header h1 {
-  color: #667eea;
-  font-size: 3rem;
-  margin-bottom: 10px;
-  font-weight: bold;
-}
 
-.header p {
-  color: #666;
-  font-size: 1.1rem;
-}
 
-/* Navigation principale */
-.main-nav {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.nav-btn {
-  padding: 12px 24px;
-  background: white;
-  border: 2px solid #667eea;
-  border-radius: 25px;
-  color: #667eea;
-  cursor: pointer;
-  font-size: 1rem;
-  font-weight: 600;
-  transition: all 0.3s;
-}
-
-.nav-btn:hover {
-  background: #667eea;
-  color: white;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-}
-
-.nav-btn.active {
-  background: #667eea;
-  color: white;
-}
-
-.chat-container {
-  background: white;
-  border-radius: 15px;
-  padding: 30px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-  max-height: calc(100vh - 300px);
-}
-
-.tabs {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-  border-bottom: 2px solid #f0f0f0;
-  flex-wrap: wrap;
-}
-
-.tab {
-  padding: 12px 24px;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  font-size: 1rem;
-  color: #666;
-  border-bottom: 3px solid transparent;
-  transition: all 0.3s;
-  font-weight: 500;
-}
-
-.tab:hover {
-  color: #667eea;
-}
-
-.tab.active {
-  color: #667eea;
-  border-bottom-color: #667eea;
-}
-
-.messages-area {
-  flex: 1;
-  overflow-y: auto;
-  margin-bottom: 20px;
-  padding: 20px;
-  background: #f9f9f9;
-  border-radius: 10px;
-  min-height: 300px;
-}
-
-.message {
-  margin-bottom: 20px;
-  padding: 15px 20px;
-  border-radius: 12px;
-  animation: fadeIn 0.3s;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.message.user {
-  background: #667eea;
-  color: white;
-  margin-left: 20%;
-  text-align: right;
-}
-
-.message.assistant {
-  background: white;
-  color: #333;
-  margin-right: 20%;
-  border: 1px solid #e0e0e0;
-}
-
-.message-label {
-  font-weight: bold;
-  margin-bottom: 8px;
-  font-size: 0.9rem;
-  opacity: 0.8;
-}
-
-.message-content {
-  line-height: 1.6;
-  white-space: pre-wrap;
-}
-
-.trust-badge {
-  display: inline-block;
-  margin-top: 10px;
-  padding: 5px 12px;
-  background: #4CAF50;
-  color: white;
-  border-radius: 20px;
-  font-size: 0.85rem;
-}
-
-.sources {
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px solid rgba(0,0,0,0.1);
-  font-size: 0.9rem;
-}
-
-.download-buttons {
-  margin-top: 15px;
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.download-btn {
-  padding: 8px 16px;
-  background: #667eea;
-  color: white;
-  border: none;
-  border-radius: 20px;
-  cursor: pointer;
-  font-size: 0.9rem;
-  transition: all 0.3s;
-}
-
-.download-btn:hover {
-  background: #5568d3;
-  transform: translateY(-2px);
-}
-
-.input-area {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-}
-
-.chat-input {
-  flex: 1;
-  padding: 15px 20px;
-  border: 2px solid #e0e0e0;
-  border-radius: 25px;
-  font-size: 1rem;
-  transition: all 0.3s;
-  outline: none;
-}
-
-.chat-input:focus {
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.send-button {
-  padding: 15px 30px;
-  background: #667eea;
-  color: white;
-  border: none;
-  border-radius: 25px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s;
-  font-weight: 600;
-}
-
-.send-button:hover:not(:disabled) {
-  background: #5568d3;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-}
-
-.send-button:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
-
-.loading {
-  text-align: center;
-  padding: 20px;
-  color: #666;
-  font-style: italic;
-}
-
-.error {
-  background: #ff4444;
-  color: white;
-  padding: 15px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-}
-
-/* Containers pour outils */
-.tool-container {
-  background: white;
-  border-radius: 15px;
-  padding: 40px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-  animation: fadeIn 0.3s;
-}
-
-.tool-container h2 {
-  color: #667eea;
-  margin-bottom: 10px;
-  font-size: 2rem;
-}
-
-.tool-container p {
-  color: #666;
-  margin-bottom: 20px;
-  font-size: 1.1rem;
-}
-
-.tool-textarea {
-  width: 100%;
-  padding: 15px;
-  border: 2px solid #e0e0e0;
-  border-radius: 10px;
-  font-size: 1rem;
-  font-family: inherit;
-  resize: vertical;
-  margin-bottom: 20px;
-  transition: all 0.3s;
-}
-
-.tool-textarea:focus {
-  outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-}
-
-.tool-button {
-  padding: 15px 40px;
-  background: #667eea;
-  color: white;
-  border: none;
-  border-radius: 25px;
-  font-size: 1.1rem;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.3s;
-}
-
-.tool-button:hover:not(:disabled) {
-  background: #5568d3;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-}
-
-.tool-button:disabled {
-  background: #ccc;
-  cursor: not-allowed;
-}
-
-/* Boîtes de résultats */
-.result-box {
-  margin-top: 30px;
-  padding: 25px;
-  background: #f9f9f9;
-  border-radius: 10px;
-  border: 2px solid #e0e0e0;
-  animation: fadeIn 0.5s;
-}
-
-.result-box h3 {
-  color: #667eea;
-  margin-bottom: 20px;
-  font-size: 1.5rem;
-}
-
-.result-item {
-  padding: 12px 15px;
-  margin-bottom: 12px;
-  background: white;
-  border-radius: 8px;
-  border-left: 4px solid #667eea;
-}
-
-.result-item strong {
-  color: #333;
-  display: inline-block;
-  margin-right: 10px;
-}
-
-.result-item.success {
-  border-left-color: #4CAF50;
-  background: #f0f9f0;
-}
-
-.result-item.danger {
-  border-left-color: #ff4444;
-  background: #fff0f0;
-}
-
-.result-item ul {
-  margin-top: 10px;
-  padding-left: 20px;
-}
-
-.result-item li {
-  margin-bottom: 5px;
-}
-
-/* Upload de fichiers */
-.upload-area {
-  text-align: center;
-  padding: 40px;
-  border: 3px dashed #667eea;
-  border-radius: 15px;
-  background: #f9f9f9;
-  margin-bottom: 20px;
-  transition: all 0.3s;
-}
-
-.upload-area:hover {
-  background: #f0f0f0;
-  border-color: #5568d3;
-}
-
-.file-input {
-  display: none;
-}
-
-.file-label {
-  display: inline-block;
-  padding: 15px 40px;
-  background: #667eea;
-  color: white;
-  border-radius: 25px;
-  cursor: pointer;
-  font-size: 1.1rem;
-  font-weight: 600;
-  transition: all 0.3s;
-}
-
-.file-label:hover {
-  background: #5568d3;
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-}
-
-.file-name {
-  margin-top: 15px;
-  color: #667eea;
-  font-weight: 600;
-}
-
-.extracted-content {
-  background: white;
-  padding: 15px;
-  border-radius: 8px;
-  max-height: 300px;
-  overflow-y: auto;
-  white-space: pre-wrap;
-  font-family: 'Courier New', monospace;
-  font-size: 0.9rem;
-  line-height: 1.5;
-  border: 1px solid #e0e0e0;
-  margin-top: 10px;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .header h1 {
-    font-size: 2rem;
-  }
-  
-  .message.user,
-  .message.assistant {
-    margin-left: 0;
-    margin-right: 0;
-  }
-  
-  .tabs {
-    font-size: 0.9rem;
-  }
-  
-  .tab {
-    padding: 10px 15px;
-    font-size: 0.9rem;
-  }
-  
-  .nav-btn {
-    padding: 10px 16px;
-    font-size: 0.9rem;
-  }
-  
-  .tool-container {
-    padding: 20px;
-  }
-  
-  .tool-container h2 {
-    font-size: 1.5rem;
-  }
-  
-  .download-buttons {
-    justify-content: center;
-  }
+@layer base {
+  * {
+    @apply border-border;
+    }
+  body {
+    @apply bg-background text-foreground;
+    }
 }
