@@ -432,9 +432,10 @@ ${ai_detection.detected_patterns?.length > 0 ? `**Patterns détectés:** ${ai_de
         <div className="max-w-6xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-r from-orange-500 to-blue-600 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">É</span>
-              </div>
+            <img src="/logo.png" 
+            alt="Logo College Champagneur"
+            className="w-12 h-12 rounded-full object-cover"
+              />
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Étienne</h1>
                 <p className="text-sm text-gray-600">Assistant IA pour les étudiants québécois fourni par le Collège Champagneur</p>
