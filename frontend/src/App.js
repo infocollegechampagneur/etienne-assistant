@@ -866,8 +866,8 @@ ${ai_detection.detected_patterns?.length > 0 ? `**Patterns détectés:** ${ai_de
         
         <div className="mt-12 text-center">
           <img 
-            src="https://images.unsplash.com/photo-1596574027151-2ce81d85af3e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzB8MHwxfHNlYXJjaHw0fHxlZHVjYXRpb24lMjBsZWFybmluZ3xlbnwwfHx8fDE3NTk0MTA1OTh8MA&ixlib=rb-4.1.0&q=85" 
-            alt="Environnement d'apprentissage" 
+            src="/Logo.png" 
+            alt="FooterLogo" 
             className="w-full max-w-2xl mx-auto rounded-xl shadow-lg object-cover h-64"
           />
           <p className="text-gray-600 mt-4 italic">Un environnement d'apprentissage moderne et collaboratif</p>
