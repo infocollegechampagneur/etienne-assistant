@@ -1,0 +1,4 @@
+# Build Info
+# Cette modification force un rebuild sur Render
+# Date: 2025-10-22
+# Version: 1.0.1
