@@ -122,7 +122,7 @@ function App() {
       
       // Vérifier si c'est un admin (vous pouvez définir votre propre logique)
       // Par exemple, vérifier un email spécifique ou un rôle
-      const adminEmails = ['admin@etienne.com', 'votre.email@admin.com'];
+      const adminEmails = ['informatique@champagneur.qc.ca'];
       setIsAdmin(adminEmails.includes(user.email));
     } else {
       // Si pas connecté, afficher le modal de connexion
